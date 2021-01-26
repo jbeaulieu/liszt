@@ -7,6 +7,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        RecyclerView ListItemRecyclerView = findViewById(R.id.ListItemRecyclerView);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -30,6 +33,16 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        String[] strDays = new String[4];
+
+        strDays[0] = "Monday";
+        strDays[1] = "Tuesday";
+        strDays[2] = "Wednesday";
+        strDays[3] = "Thursday";
+
+        ListItemRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        ListItemRecyclerView.setAdapter(new ListAdapter(strDays));
+
     }
 
     @Override
