@@ -9,19 +9,19 @@ import java.util.List;
 
 public class ListViewModel extends AndroidViewModel {
 
-    private ItemRepository itemRepository;
+    private TaskRepository taskRepository;
 
-    private final LiveData<List<Item>> itemList;
+    private final LiveData<List<Task>> taskList;
 
     public ListViewModel (Application application) {
         super(application);
-        itemRepository = new ItemRepository(application);
-        itemList = itemRepository.getListItems();
+        taskRepository = new TaskRepository(application);
+        taskList = taskRepository.getListTasks();
     }
 
-    LiveData<List<Item>> getItemList() { return itemList; }
+    LiveData<List<Task>> getTaskList() { return taskList; }
 
     // Create wrapper methods so that the implementation is segmented from the UI
-    public void insert(Item item) { itemRepository.insert(item); }
-    public void delete(Item item) { itemRepository.delete(item); }
+    public void insert(Task task) { taskRepository.insert(task); }
+    public void delete(Task task) { taskRepository.delete(task); }
 }

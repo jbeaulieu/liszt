@@ -11,11 +11,11 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class TaskListAdapter extends ListAdapter<Item, TaskViewHolder> {
+public class TaskListAdapter extends ListAdapter<Task, TaskViewHolder> {
 
-    private String[] listItems;
+    private String[] listTasks;
 
-    protected TaskListAdapter(@NonNull DiffUtil.ItemCallback<Item> diffCallback) {
+    protected TaskListAdapter(@NonNull DiffUtil.ItemCallback<Task> diffCallback) {
         super(diffCallback);
     }
 
@@ -25,13 +25,13 @@ public class TaskListAdapter extends ListAdapter<Item, TaskViewHolder> {
      * (custom ViewHolder).
      */
 
-/*    public TaskListAdapter(String[] items) {
-        listItems = items;
+/*    public TaskListAdapter(String[] tasks) {
+        listTasks = tasks;
     }*/
 
 /*    @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-        viewHolder.getTextView().setText(listItems[position]);
+        viewHolder.getTextView().setText(listTasks[position]);
     }*/
 
     // Create new views (invoked by the layout manager)
@@ -43,39 +43,30 @@ public class TaskListAdapter extends ListAdapter<Item, TaskViewHolder> {
 
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
-        Item current = getItem(position);
-        holder.bind(current.getItem());
+        Task current = getItem(position);
+        holder.bind(current.getTask());
 
-        holder.getCheckBox().setOnClickListener(new View.OnClickListener() {
+        holder.getCheckBox().setOnClickListener(view -> {
 
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-
-                if(holder.getCheckBox().isChecked())
-                {
-                    Log.d("myTag", "Task: " + holder.getTextView().getText() + " -> selected.");
-                }
-                else
-                {
-                    Log.d("myTag", "Task: " + holder.getTextView().getText() + " -> un-selected.");
-                }
-
+            if(holder.getCheckBox().isChecked()) {
+                Log.d("myTag", "Task: " + holder.getTextView().getText() + " -> selected.");
+            } else {
+                Log.d("myTag", "Task: " + holder.getTextView().getText() + " -> un-selected.");
             }
 
         });
     }
 
-    static class WordDiff extends DiffUtil.ItemCallback<Item> {
+    static class WordDiff extends DiffUtil.ItemCallback<Task> {
 
         @Override
-        public boolean areItemsTheSame(@NonNull Item oldItem, @NonNull Item newItem) {
-            return oldItem == newItem;
+        public boolean areItemsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
+            return oldTask == newTask;
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Item oldItem, @NonNull Item newItem) {
-            return oldItem.getItem().equals(newItem.getItem());
+        public boolean areContentsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
+            return oldTask.getTask().equals(newTask.getTask());
         }
     }
 

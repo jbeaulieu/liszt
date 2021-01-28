@@ -12,14 +12,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * RoomDatabase class to work with ItemDao and perform asynchronous queries
+ * RoomDatabase class to work with TaskDao and perform asynchronous queries
  */
-@Database(entities = {Item.class}, version = 1, exportSchema = false)
-public abstract class ItemRoomDatabase extends RoomDatabase {
+@Database(entities = {Task.class}, version = 1, exportSchema = false)
+public abstract class TaskRoomDatabase extends RoomDatabase {
 
-    public abstract ItemDao itemDao();
+    public abstract TaskDao taskDao();
 
-    private static volatile ItemRoomDatabase INSTANCE;
+    private static volatile TaskRoomDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 2;
     static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
@@ -29,21 +29,21 @@ public abstract class ItemRoomDatabase extends RoomDatabase {
             super.onCreate(db);
 
             databaseWriteExecutor.execute(() -> {
-               ItemDao dao = INSTANCE.itemDao();
+               TaskDao dao = INSTANCE.taskDao();
 
-               Item item1 = new Item("Apples");
-               Item item2 = new Item("Oranges");
-               dao.insert(item1);
-               dao.insert(item2);
+               Task task1 = new Task("Apples");
+               Task task2 = new Task("Oranges");
+               dao.insert(task1);
+               dao.insert(task2);
             });
         }
     };
 
-    static ItemRoomDatabase getDatabase(final Context context) {
+    static TaskRoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
-            synchronized (ItemRoomDatabase.class) {
+            synchronized (TaskRoomDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), ItemRoomDatabase.class, "item_database")
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), TaskRoomDatabase.class, "task_database")
                             .addCallback(sRoomDatabaseCallback).build();
                 }
             }

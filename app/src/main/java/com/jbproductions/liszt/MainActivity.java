@@ -62,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
         mListViewModel = new ViewModelProvider(this).get(ListViewModel.class);
 
-        mListViewModel.getItemList().observe(this, items -> {
-            adapter.submitList(items);
+        mListViewModel.getTaskList().observe(this, tasks -> {
+            adapter.submitList(tasks);
         });
 
     }

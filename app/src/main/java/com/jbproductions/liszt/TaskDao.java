@@ -11,20 +11,20 @@ import androidx.room.Update;
 import java.util.List;
 
 /**
- * DAO to provide query functionality for Item Entities
+ * DAO to provide query functionality for Task Entities
  */
 @Dao
-public interface ItemDao {
+public interface TaskDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void insert(Item item);
+    void insert(Task task);
 
     @Update
-    void updateItem(Item item);
+    void updateTask(Task task);
 
     @Delete
-    void deleteItem(Item item);
+    void deleteTask(Task task);
 
-    @Query("SELECT * FROM item_table")
-    LiveData<List<Item>> getAllItems();
+    @Query("SELECT * FROM task_table")
+    LiveData<List<Task>> getAllTasks();
 }
