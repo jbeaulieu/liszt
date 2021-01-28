@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton addTaskButton;
     private EditText newTaskText;
 
-    private ListViewModel mListViewModel;
+    private ViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +60,9 @@ public class MainActivity extends AppCompatActivity {
         final TaskListAdapter adapter = new TaskListAdapter(new TaskListAdapter.WordDiff());
         ListItemRecyclerView.setAdapter(adapter);
 
-        mListViewModel = new ViewModelProvider(this).get(ListViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(ViewModel.class);
 
-        mListViewModel.getTaskList().observe(this, tasks -> {
+        mViewModel.getTaskList().observe(this, tasks -> {
             adapter.submitList(tasks);
         });
 

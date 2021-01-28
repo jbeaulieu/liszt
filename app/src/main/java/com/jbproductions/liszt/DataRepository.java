@@ -11,12 +11,12 @@ import java.util.List;
  * Currently, this simply routes data provided by the TaskDao. In a future implementation, this
  * class will handle deciding whether to fetch online data or rely on data cached in local storage.
  */
-public class TaskRepository {
+public class DataRepository {
 
     private TaskDao mTaskDao;
     private LiveData<List<Task>> mListTasks;
 
-    TaskRepository(Application application) {
+    DataRepository(Application application) {
         TaskRoomDatabase db = TaskRoomDatabase.getDatabase(application);
         mTaskDao = db.taskDao();
         mListTasks = mTaskDao.getAllTasks();

@@ -8,11 +8,11 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-class TaskViewHolder extends RecyclerView.ViewHolder {
+class TaskFragmentViewHolder extends RecyclerView.ViewHolder {
     private final TextView textView;
     private final CheckBox checkBox;
 
-    private TaskViewHolder(View view) {
+    private TaskFragmentViewHolder(View view) {
         super(view);
         textView = (TextView) view.findViewById(R.id.task_text);
         checkBox = (CheckBox) view.findViewById(R.id.task_checkbox);
@@ -28,9 +28,9 @@ class TaskViewHolder extends RecyclerView.ViewHolder {
         return checkBox;
     }
 
-    static TaskViewHolder create(ViewGroup parent) {
+    static TaskFragmentViewHolder create(ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_task, parent, false);
-        return new TaskViewHolder(view);
+        return new TaskFragmentViewHolder(view);
     }
 }

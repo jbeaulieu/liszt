@@ -1,17 +1,13 @@
 package com.jbproductions.liszt;
 
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
 
-public class TaskListAdapter extends ListAdapter<Task, TaskViewHolder> {
+public class TaskListAdapter extends ListAdapter<Task, TaskFragmentViewHolder> {
 
     private String[] listTasks;
 
@@ -37,12 +33,12 @@ public class TaskListAdapter extends ListAdapter<Task, TaskViewHolder> {
     // Create new views (invoked by the layout manager)
     @NonNull
     @Override
-    public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return TaskViewHolder.create(parent);
+    public TaskFragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return TaskFragmentViewHolder.create(parent);
     }
 
     @Override
-    public void onBindViewHolder(TaskViewHolder holder, int position) {
+    public void onBindViewHolder(TaskFragmentViewHolder holder, int position) {
         Task current = getItem(position);
         holder.bind(current.getTask());
 
