@@ -1,5 +1,6 @@
 package com.jbproductions.liszt;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,25 @@ public class TaskListAdapter extends ListAdapter<Item, TaskViewHolder> {
     public void onBindViewHolder(TaskViewHolder holder, int position) {
         Item current = getItem(position);
         holder.bind(current.getItem());
+
+        holder.getCheckBox().setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+
+                if(holder.getCheckBox().isChecked())
+                {
+                    Log.d("myTag", "Task: " + holder.getTextView().getText() + " -> selected.");
+                }
+                else
+                {
+                    Log.d("myTag", "Task: " + holder.getTextView().getText() + " -> un-selected.");
+                }
+
+            }
+
+        });
     }
 
     static class WordDiff extends DiffUtil.ItemCallback<Item> {
