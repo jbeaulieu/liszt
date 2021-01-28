@@ -7,6 +7,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +22,8 @@ import android.widget.ImageButton;
 public class MainActivity extends AppCompatActivity {
     private ImageButton addTaskButton;
     private EditText newTaskText;
+
+    private ListViewModel mListViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +57,14 @@ public class MainActivity extends AppCompatActivity {
         strDays[3] = "Thursday";
 
         ListItemRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        ListItemRecyclerView.setAdapter(new ListAdapter(strDays));
+        final TaskListAdapter adapter = new TaskListAdapter(new TaskListAdapter.WordDiff());
+        ListItemRecyclerView.setAdapter(adapter);
+
+        mListViewModel = new ViewModelProvider(this).get(ListViewModel.class);
+
+        mListViewModel.getItemList().observe(this, items -> {
+            adapter.submitList(items);
+        });
 
     }
 
