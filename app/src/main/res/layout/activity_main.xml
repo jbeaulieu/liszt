@@ -23,16 +23,38 @@
     <!--    <include layout="@layout/content_main" />-->
 
     <LinearLayout
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
-            android:textSize="64sp" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/newTaskText"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="7"
+                android:inputType="text"
+                android:text=""/>
+
+            <ImageButton
+                android:id="@+id/add_task_button"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="0dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_baseline_add_24" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/ListItemRecyclerView"
