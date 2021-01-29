@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 import android.view.Menu;
@@ -43,12 +44,31 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Task newTask = new Task(newTaskText.getText().toString());
+                mViewModel.insert(newTask);
                 Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
             }
         });
+
+        newTaskText.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    Task newTask = new Task(newTaskText.getText().toString());
+                    mViewModel.insert(newTask);
+                    Log.d("myTag", "Keyboard Enter Captured: " + newTaskText.getText());
+                    return true;
+                }
+                return false;
+            }
+        });
+
         String[] strDays = new String[4];
 
         strDays[0] = "Monday";
