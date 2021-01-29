@@ -31,8 +31,8 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
             databaseWriteExecutor.execute(() -> {
                TaskDao dao = INSTANCE.taskDao();
 
-               Task task1 = new Task("Apples");
-               Task task2 = new Task("Oranges");
+               Task task1 = new Task("Apples", false);
+               Task task2 = new Task("Oranges", false);
                dao.insert(task1);
                dao.insert(task2);
             });

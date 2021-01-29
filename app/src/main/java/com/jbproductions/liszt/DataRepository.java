@@ -32,6 +32,12 @@ public class DataRepository {
         });
     }
 
+    void update(Task task) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
+            mTaskDao.updateTask(task);
+        });
+    }
+
     void delete(Task task) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
             mTaskDao.deleteTask(task);

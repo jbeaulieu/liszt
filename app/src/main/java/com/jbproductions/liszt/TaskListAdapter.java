@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.ListAdapter;
 
 public class TaskListAdapter extends ListAdapter<Task, TaskFragmentViewHolder> {
 
+    private final TaskClickInterface mTaskClickInterface;
     private String[] listTasks;
 
-    protected TaskListAdapter(@NonNull DiffUtil.ItemCallback<Task> diffCallback) {
+    protected TaskListAdapter(TaskClickInterface mTaskClickInterface, @NonNull DiffUtil.ItemCallback<Task> diffCallback) {
         super(diffCallback);
+        this.mTaskClickInterface = mTaskClickInterface;
     }
 
 
@@ -40,15 +42,20 @@ public class TaskListAdapter extends ListAdapter<Task, TaskFragmentViewHolder> {
     @Override
     public void onBindViewHolder(TaskFragmentViewHolder holder, int position) {
         Task current = getItem(position);
-        holder.bind(current.getTask());
+        holder.bind(current.getTask(), current.getStatus());
 
         holder.getCheckBox().setOnClickListener(view -> {
 
+            String taskName = holder.getTextView().getText().toString();
+            boolean status = holder.getCheckBox().isChecked();
+
             if(holder.getCheckBox().isChecked()) {
-                Log.d("myTag", "Task: " + holder.getTextView().getText() + " -> selected.");
+                Log.d("myTag", "Task: " + taskName + " -> selected.");
             } else {
-                Log.d("myTag", "Task: " + holder.getTextView().getText() + " -> un-selected.");
+                Log.d("myTag", "Task: " + taskName + " -> un-selected.");
             }
+
+            mTaskClickInterface.OnCheckCallback(new Task(taskName, status));
 
         });
     }

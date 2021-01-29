@@ -17,7 +17,11 @@ public class Task {
     @ColumnInfo(name = "task")
     private String mTask;
 
-    public Task(@NonNull String task) {this.mTask = task;}
+    @ColumnInfo(name = "status")
+    private boolean mStatus;
+
+    public Task(@NonNull String task, boolean status) {this.mTask = task; this.mStatus = status;}
 
     public String getTask(){ return this.mTask; }
+    public boolean getStatus(){ return this.mStatus; }
 }

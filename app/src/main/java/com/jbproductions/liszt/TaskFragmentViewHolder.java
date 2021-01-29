@@ -18,7 +18,7 @@ class TaskFragmentViewHolder extends RecyclerView.ViewHolder {
         checkBox = (CheckBox) view.findViewById(R.id.task_checkbox);
     }
 
-    public void bind(String text) { textView.setText(text); }
+    public void bind(String text, boolean status) { textView.setText(text); checkBox.setChecked(status); }
 
     public TextView getTextView() {
         return textView;

@@ -21,6 +21,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 public class MainActivity extends AppCompatActivity {
+
+    TaskClickInterface mTaskClickInterface;
     private ImageButton addTaskButton;
     private EditText newTaskText;
 
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Task newTask = new Task(newTaskText.getText().toString());
+                Task newTask = new Task(newTaskText.getText().toString(), false);
                 mViewModel.insert(newTask);
                 Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
             }
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     // Perform action on key press
-                    Task newTask = new Task(newTaskText.getText().toString());
+                    Task newTask = new Task(newTaskText.getText().toString(), false);
                     mViewModel.insert(newTask);
                     Log.d("myTag", "Keyboard Enter Captured: " + newTaskText.getText());
                     return true;
@@ -76,11 +78,19 @@ public class MainActivity extends AppCompatActivity {
         strDays[2] = "Wednesday";
         strDays[3] = "Thursday";
 
-        ListItemRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        final TaskListAdapter adapter = new TaskListAdapter(new TaskListAdapter.WordDiff());
-        ListItemRecyclerView.setAdapter(adapter);
-
         mViewModel = new ViewModelProvider(this).get(ViewModel.class);
+
+        mTaskClickInterface = new TaskClickInterface() {
+            @Override
+            public void OnCheckCallback(Task task) {
+                mViewModel.update(task);
+                Log.d("HERE", "HERE");
+            }
+        };
+
+        final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.WordDiff());
+        ListItemRecyclerView.setAdapter(adapter);
+        ListItemRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mViewModel.getTaskList().observe(this, tasks -> {
             adapter.submitList(tasks);

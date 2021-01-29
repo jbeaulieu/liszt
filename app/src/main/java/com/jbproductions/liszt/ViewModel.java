@@ -23,5 +23,6 @@ public class ViewModel extends AndroidViewModel {
 
     // Create wrapper methods so that the implementation is segmented from the UI
     public void insert(Task task) { dataRepository.insert(task); }
+    public void update(Task task) { dataRepository.update(task); }
     public void delete(Task task) { dataRepository.delete(task); }
 }
