@@ -28,8 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     TaskClickInterface mTaskClickInterface;
     private ImageButton addTaskButton;
+    private ImageButton editTaskButton;
+    private ImageButton deleteTaskButton;
     private EditText newTaskText;
-
     private ViewModel mViewModel;
 
     @Override
@@ -41,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView ArchiveRecyclerView = findViewById(R.id.ArchiveRecyclerView);
         setSupportActionBar(toolbar);
         addTaskButton = (ImageButton) findViewById(R.id.add_task_button);
+        editTaskButton = (ImageButton) findViewById(R.id.edit_task_button);
+        deleteTaskButton = (ImageButton) findViewById(R.id.delete_task_button);
+
         newTaskText = (EditText) findViewById(R.id.newTaskText);
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -55,11 +59,29 @@ public class MainActivity extends AppCompatActivity {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Task newTask = new Task(newTaskText.getText().toString(), false);
-                mViewModel.insert(newTask);
+                Task thisTask = new Task(newTaskText.getText().toString(), false);
+                mViewModel.insert(thisTask);
                 Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
             }
         });
+
+//        editTaskButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Task thisTask = new Task(newTaskText.getText().toString(), false);
+//                mViewModel.update(thisTask);
+//                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
+//            }
+//        });
+//
+//        deleteTaskButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Task thisTask = new Task(newTaskText.getText().toString(), false);
+//                mViewModel.delete(thisTask);
+//                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
+//            }
+//        });
 
         newTaskText.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -67,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     // Perform action on key press
-                    Task newTask = new Task(newTaskText.getText().toString(), false);
-                    mViewModel.insert(newTask);
+                    Task thisTask = new Task(newTaskText.getText().toString(), false);
+                    mViewModel.insert(thisTask);
                     Log.d("myTag", "Keyboard Enter Captured: " + newTaskText.getText());
                     return true;
                 }
@@ -113,7 +135,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLongClick(View view, int position) {
-//                arg1.findViewById(R.id.imgdelete).setVisibility(View.VISIBLE);
+                String thisTaskName = mViewModel.getOpenTasks().getValue().get(position).getTask();
+                Boolean thisTaskStatus = mViewModel.getOpenTasks().getValue().get(position).getStatus();
+                Task thisTask = new Task(thisTaskName, thisTaskStatus);
+                mViewModel.delete(thisTask);
+                view.setBackgroundColor(0xFF00FF00);
+                Log.d("TestCodeTag", "Value: " + mViewModel.getOpenTasks().getValue().get(position).getTask());
                 Toast.makeText(MainActivity.this, "Long press on position :" + position,
                         Toast.LENGTH_LONG).show();
             }
