@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         RecyclerView ListItemRecyclerView = findViewById(R.id.ListItemRecyclerView);
+        RecyclerView ArchiveRecyclerView = findViewById(R.id.ArchiveRecyclerView);
         setSupportActionBar(toolbar);
         addTaskButton = (ImageButton) findViewById(R.id.add_task_button);
         newTaskText = (EditText) findViewById(R.id.newTaskText);
@@ -75,13 +76,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        String[] strDays = new String[4];
-
-        strDays[0] = "Monday";
-        strDays[1] = "Tuesday";
-        strDays[2] = "Wednesday";
-        strDays[3] = "Thursday";
-
         mViewModel = new ViewModelProvider(this).get(ViewModel.class);
 
         mTaskClickInterface = new TaskClickInterface() {
@@ -96,8 +90,16 @@ public class MainActivity extends AppCompatActivity {
         ListItemRecyclerView.setAdapter(adapter);
         ListItemRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mViewModel.getTaskList().observe(this, tasks -> {
+        mViewModel.getOpenTasks().observe(this, tasks -> {
             adapter.submitList(tasks);
+        });
+
+        final TaskListAdapter archiveAdapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.WordDiff());
+        ArchiveRecyclerView.setAdapter(archiveAdapter);
+        ArchiveRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mViewModel.getCompleteTasks().observe(this, tasks -> {
+            archiveAdapter.submitList(tasks);
         });
 
         ListItemRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
