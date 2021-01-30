@@ -60,16 +60,16 @@ public class TaskListAdapter extends ListAdapter<Task, TaskFragmentViewHolder> {
         });
     }
 
-    static class WordDiff extends DiffUtil.ItemCallback<Task> {
+    static class TaskDiff extends DiffUtil.ItemCallback<Task> {
 
         @Override
         public boolean areItemsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
-            return oldTask == newTask;
+            return oldTask.getTask().equals(newTask.getTask());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
-            return oldTask.getTask().equals(newTask.getTask());
+            return oldTask.equals(newTask);
         }
     }
 
