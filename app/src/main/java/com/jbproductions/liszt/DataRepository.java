@@ -15,15 +15,27 @@ public class DataRepository {
 
     private TaskDao mTaskDao;
     private LiveData<List<Task>> mListTasks;
+    private LiveData<List<Task>> mOpenTasks;
+    private LiveData<List<Task>> mCompleteTasks;
 
     DataRepository(Application application) {
         TaskRoomDatabase db = TaskRoomDatabase.getDatabase(application);
         mTaskDao = db.taskDao();
         mListTasks = mTaskDao.getAllTasks();
+        mOpenTasks = mTaskDao.getOpenTasks();
+        mCompleteTasks = mTaskDao.getCompleteTasks();
     }
 
     LiveData<List<Task>> getListTasks() {
         return mListTasks;
+    }
+
+    LiveData<List<Task>> getOpenTasks() {
+        return mOpenTasks;
+    }
+
+    LiveData<List<Task>> getCompleteTasks() {
+        return mCompleteTasks;
     }
 
     void insert(Task task) {
