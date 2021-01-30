@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.WordDiff());
+        final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
         ListItemRecyclerView.setAdapter(adapter);
         ListItemRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             adapter.submitList(tasks);
         });
 
-        final TaskListAdapter archiveAdapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.WordDiff());
+        final TaskListAdapter archiveAdapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
         ArchiveRecyclerView.setAdapter(archiveAdapter);
         ArchiveRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 

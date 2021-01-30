@@ -24,4 +24,8 @@ public class Task {
 
     public String getTask(){ return this.mTask; }
     public boolean getStatus(){ return this.mStatus; }
+
+    public boolean equals(Task otherTask) {
+        return mTask.equals(otherTask.mTask) && mStatus == otherTask.mStatus;
+    }
 }
