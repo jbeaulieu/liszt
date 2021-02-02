@@ -6,8 +6,11 @@ import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverter;
+import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,6 +18,7 @@ import java.util.concurrent.Executors;
  * RoomDatabase class to work with TaskDao and perform asynchronous queries
  */
 @Database(entities = {Task.class}, version = 1, exportSchema = false)
+@TypeConverters(DateTypeConverter.class)
 public abstract class TaskRoomDatabase extends RoomDatabase {
 
     public abstract TaskDao taskDao();
@@ -50,4 +54,22 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
+}
+
+class DateTypeConverter {
+
+    @TypeConverter
+    public Date toDate(Long value) {
+        return value == null ? null : new Date(value);
+    }
+
+    @TypeConverter
+    public Long toLong(Date date) {
+        if (date == null) {
+            return null;
+        } else {
+            return date.getTime();
+        }
+    }
+
 }
