@@ -10,7 +10,10 @@ import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,18 +61,16 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
 
 class DateTypeConverter {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
     @TypeConverter
-    public Date toDate(Long value) {
-        return value == null ? null : new Date(value);
+    public Date toDate(String value) throws ParseException {
+        return sdf.parse(value);
     }
 
     @TypeConverter
-    public Long toLong(Date date) {
-        if (date == null) {
-            return null;
-        } else {
-            return date.getTime();
-        }
+    public String toString(Date date) {
+        return sdf.format(date);
     }
 
 }
