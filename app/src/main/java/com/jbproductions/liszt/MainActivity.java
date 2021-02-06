@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Task thisTask = new Task(newTaskText.getText().toString(), false);
                 mViewModel.insert(thisTask);
+                newTaskText.getText().clear();
                 Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
             }
         });
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     // Perform action on key press
                     Task thisTask = new Task(newTaskText.getText().toString(), false);
                     mViewModel.insert(thisTask);
+                    newTaskText.getText().clear();
                     Log.d("myTag", "Keyboard Enter Captured: " + newTaskText.getText());
                     return true;
                 }

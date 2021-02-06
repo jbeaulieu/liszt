@@ -1,6 +1,7 @@
 package com.jbproductions.liszt;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -64,8 +65,15 @@ class DateTypeConverter {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
 
     @TypeConverter
-    public Date toDate(String value) throws ParseException {
-        return sdf.parse(value);
+    public Date toDate(String value) {
+        Log.d("TypeConverter Use:", value);
+        try {
+            return sdf.parse(value);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     @TypeConverter

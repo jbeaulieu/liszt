@@ -51,10 +51,10 @@
     <!--    <include layout="@layout/content_main" />-->
 
     <LinearLayout
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,46 +63,60 @@
 
             <EditText
                 android:id="@+id/newTaskText"
-                android:layout_height="wrap_content"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="7"
                 android:inputType="text"
-                android:text=""/>
+                android:text="" />
 
             <ImageButton
                 android:id="@+id/add_task_button"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:scaleType="fitCenter"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="2dp"
-                android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
                 android:background="@color/timberwolf"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_add_24" />
 
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/ListItemRecyclerView"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        </androidx.recyclerview.widget.RecyclerView>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/ListItemRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:nestedScrollingEnabled="false"
+                    tools:layout_editor_absoluteX="66dp"
+                    tools:layout_editor_absoluteY="85dp">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="---Archive---" />
+                </androidx.recyclerview.widget.RecyclerView>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/ArchiveRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="---Archive---" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/ArchiveRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:nestedScrollingEnabled="false" />
+
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
 
