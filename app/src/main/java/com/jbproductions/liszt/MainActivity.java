@@ -66,23 +66,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        editTaskButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Task thisTask = new Task(newTaskText.getText().toString(), false);
-//                mViewModel.update(thisTask);
-//                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
-//            }
-//        });
-//
-//        deleteTaskButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Task thisTask = new Task(newTaskText.getText().toString(), false);
-//                mViewModel.delete(thisTask);
-//                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
-//            }
-//        });
+        editTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewModel.printDeletedSelection();
+                Log.d("myTag", "Button Press Captured: List of Selected Tasks...");
+            }
+        });
+
+        deleteTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewModel.emptyDeleteSelection();
+                Log.d("myTag", "Button Press Captured: Selected Tasks Deleted");
+            }
+        });
 
         newTaskText.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -140,8 +138,14 @@ public class MainActivity extends AppCompatActivity {
                 String thisTaskName = mViewModel.getOpenTasks().getValue().get(position).getTask();
                 Boolean thisTaskStatus = mViewModel.getOpenTasks().getValue().get(position).getStatus();
                 Task thisTask = new Task(thisTaskName, thisTaskStatus);
-                mViewModel.delete(thisTask);
-                view.setBackgroundColor(0xFF00FF00);
+                if(mViewModel.isInDeleteSelection(thisTask)) {
+                    view.setBackgroundColor(0xFF018786);
+                    mViewModel.removeFromDeleteSelection(thisTask);
+                }
+                else{
+                    view.setBackgroundColor(0xFF00FF00);
+                    mViewModel.addToDeleteSelection(thisTask);
+                }
                 Log.d("TestCodeTag", "Value: " + mViewModel.getOpenTasks().getValue().get(position).getTask());
                 Toast.makeText(MainActivity.this, "Long press on position :" + position,
                         Toast.LENGTH_LONG).show();
