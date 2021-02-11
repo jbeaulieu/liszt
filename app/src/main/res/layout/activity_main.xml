@@ -97,12 +97,8 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/ListItemRecyclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:nestedScrollingEnabled="false"
-                    tools:layout_editor_absoluteX="66dp"
-                    tools:layout_editor_absoluteY="85dp">
-
-                </androidx.recyclerview.widget.RecyclerView>
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
 
                 <TextView
                     android:id="@+id/textView"
@@ -113,7 +109,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/ArchiveRecyclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false" />
 
             </LinearLayout>
