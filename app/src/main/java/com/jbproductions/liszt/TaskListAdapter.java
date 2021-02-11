@@ -1,13 +1,18 @@
 package com.jbproductions.liszt;
 
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class TaskListAdapter extends ListAdapter<Task, TaskFragmentViewHolder> {
+public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewHolder> {
 
     //// Member Attributes
 
@@ -23,29 +28,31 @@ public class TaskListAdapter extends ListAdapter<Task, TaskFragmentViewHolder> {
     // Create direct references for Task subviews (invoked by the layout manager)
     @NonNull
     @Override
-    public TaskFragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return TaskFragmentViewHolder.create(parent);
+    public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.fragment_task, parent, false);
+        return new TaskViewHolder(view);
     }
 
     // Set Task attributes based on stored data
     @Override
-    public void onBindViewHolder(TaskFragmentViewHolder holder, int position) {
+    public void onBindViewHolder(TaskViewHolder holder, int position) {
+
         Task current = getItem(position);
-        holder.bind(current.getTask(), current.getStatus());
+        holder.textView.setText(current.getTask());
+        holder.checkBox.setChecked(current.getStatus());
 
-        holder.getCheckBox().setOnClickListener(view -> {
+        holder.checkBox.setOnClickListener(view -> {
+            String taskName = holder.textView.getText().toString();
+            boolean status = holder.checkBox.isChecked();
 
-            String taskName = holder.getTextView().getText().toString();
-            boolean status = holder.getCheckBox().isChecked();
-
-            if (holder.getCheckBox().isChecked()) {
+            if (holder.checkBox.isChecked()) {
                 Log.d("myTag", "Task: " + taskName + " -> selected.");
             } else {
                 Log.d("myTag", "Task: " + taskName + " -> un-selected.");
             }
 
             mTaskClickInterface.OnCheckCallback(new Task(taskName, status));
-
         });
     }
 
@@ -63,4 +70,23 @@ public class TaskListAdapter extends ListAdapter<Task, TaskFragmentViewHolder> {
         }
     }
 
+    static class TaskViewHolder extends RecyclerView.ViewHolder {
+
+        //// Member Attributes
+
+        private final TextView textView;
+        private final CheckBox checkBox;
+
+        //// Constructor Methods
+
+        public TaskViewHolder(View view) {
+            // Stores the view in a public final variable that can be used to access
+            // the context from any TaskFragmentViewHolder instance.
+            super(view);
+
+            // Initialize member attributes for each view in the Task fragment.
+            textView = (TextView) view.findViewById(R.id.task_text);
+            checkBox = (CheckBox) view.findViewById(R.id.task_checkbox);
+        }
+    }
 }
