@@ -14,7 +14,10 @@ import java.util.Date;
 @Entity(tableName = "task_table")
 public class Task {
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
+    private int id;
+
     @NonNull
     @ColumnInfo(name = "task")
     private String mTask;
@@ -28,20 +31,23 @@ public class Task {
     @ColumnInfo(name = "date_modified", defaultValue = "CURRENT_TIMESTAMP")
     private Date mModified;
 
-    public Task(@NonNull String task, boolean status) {this.mTask = task; this.mStatus = status; this.mCreated = new Date(); this.mModified = new Date(); }
+    public Task(@NonNull String task, boolean status) {
+        this.mTask = task;
+        this.mStatus = status;
+        this.mCreated = new Date();
+        this.mModified = new Date();
+    }
 
+    public int getId(){ return this.id; }
     public String getTask(){ return this.mTask; }
     public boolean getStatus(){ return this.mStatus; }
     public Date getCreated(){ return this.mCreated; }
     public Date getModified(){ return this.mModified; }
 
-    public void setCreated(Date created) {
-        this.mCreated = created;
-    }
-
-    public void setModified(Date modified) {
-        this.mModified = modified;
-    }
+    public void setId(int id) { this.id = id; }
+    public void setStatus(boolean status) { this.mStatus = status; }
+    public void setCreated(Date created) { this.mCreated = created; }
+    public void setModified(Date modified) { this.mModified = modified; }
 
     public boolean equals(Task otherTask) {
         return mTask.equals(otherTask.mTask) && mStatus == otherTask.mStatus;

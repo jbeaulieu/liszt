@@ -8,6 +8,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewHolder> {
 
     //// Member Attributes
-
+    private SelectionTracker<Long> mSelectionTracker;
     private final TaskClickInterface mTaskClickInterface;
 
     //// Constructor Methods
@@ -23,6 +24,11 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
     protected TaskListAdapter(TaskClickInterface mTaskClickInterface, @NonNull DiffUtil.ItemCallback<Task> diffCallback) {
         super(diffCallback);
         this.mTaskClickInterface = mTaskClickInterface;
+        setHasStableIds(true);
+    }
+
+    public void setSelectionTracker(SelectionTracker<Long> selectionTracker) {
+        this.mSelectionTracker = selectionTracker;
     }
 
     // Create direct references for Task subviews (invoked by the layout manager)
@@ -39,12 +45,15 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
     public void onBindViewHolder(TaskViewHolder holder, int position) {
 
         Task current = getItem(position);
+        holder.position = position;
+        holder.textView.setActivated(mSelectionTracker.isSelected((long) current.getId()));
         holder.textView.setText(current.getTask());
         holder.checkBox.setChecked(current.getStatus());
 
         holder.checkBox.setOnClickListener(view -> {
             String taskName = holder.textView.getText().toString();
             boolean status = holder.checkBox.isChecked();
+            current.setStatus(status);
 
             if (holder.checkBox.isChecked()) {
                 Log.d("myTag", "Task: " + taskName + " -> selected.");
@@ -52,8 +61,14 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
                 Log.d("myTag", "Task: " + taskName + " -> un-selected.");
             }
 
-            mTaskClickInterface.OnCheckCallback(new Task(taskName, status));
+            mTaskClickInterface.OnCheckCallback(current);
         });
+    }
+
+    @Override
+    public long getItemId(int position) {
+        int itemID = getItem(position).getId();
+        return (long)itemID;
     }
 
     // Compares whether two Tasks visual representations are the same
@@ -70,10 +85,10 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
         }
     }
 
-    static class TaskViewHolder extends RecyclerView.ViewHolder {
+    public static class TaskViewHolder extends RecyclerView.ViewHolder {
 
         //// Member Attributes
-
+        public int position;
         private final TextView textView;
         private final CheckBox checkBox;
 

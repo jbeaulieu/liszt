@@ -6,9 +6,16 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.SelectionPredicates;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.StableIdKeyProvider;
+import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +33,8 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    SelectionTracker<Long> mSelectionTracker;
+    SelectionTracker<Long> mSelectionTracker2;
     TaskClickInterface mTaskClickInterface;
     private ImageButton addTaskButton;
     private ImageButton editTaskButton;
@@ -118,6 +127,16 @@ public class MainActivity extends AppCompatActivity {
             adapter.submitList(tasks);
         });
 
+        mSelectionTracker = new SelectionTracker.Builder<Long>(
+                "selection-id",
+                ListItemRecyclerView,
+                new TaskKeyProvider(ListItemRecyclerView),
+                new TaskDetailsLookup(ListItemRecyclerView),
+                StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(SelectionPredicates.<Long>createSelectAnything()).build();
+
+        adapter.setSelectionTracker(mSelectionTracker);
+
         final TaskListAdapter archiveAdapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
         ArchiveRecyclerView.setAdapter(archiveAdapter);
         ArchiveRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -126,7 +145,17 @@ public class MainActivity extends AppCompatActivity {
             archiveAdapter.submitList(tasks);
         });
 
-        ListItemRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
+        mSelectionTracker2 = new SelectionTracker.Builder<Long>(
+                "selection-id",
+                ArchiveRecyclerView,
+                new TaskKeyProvider(ArchiveRecyclerView),
+                new TaskDetailsLookup(ArchiveRecyclerView),
+                StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(SelectionPredicates.<Long>createSelectAnything()).build();
+
+        archiveAdapter.setSelectionTracker(mSelectionTracker2);
+
+/*        ListItemRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 ListItemRecyclerView, new ClickListener() {
             @Override
             public void onClick(View view, final int position) {
@@ -146,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Long press on position :" + position,
                         Toast.LENGTH_LONG).show();
             }
-        }));
+        }));*/
     }
 
     @Override
@@ -219,6 +248,28 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
 
+        }
+    }
+
+    public class TaskKeyProvider extends ItemKeyProvider<Long> {
+
+        private RecyclerView mRecyclerView;
+
+        public TaskKeyProvider(RecyclerView recyclerView) {
+            super(SCOPE_MAPPED);
+            this.mRecyclerView = recyclerView;
+        }
+
+        @Nullable
+        @Override
+        public Long getKey(int position) {
+            return mRecyclerView.getAdapter().getItemId(position);
+        }
+
+        @Override
+        public int getPosition(@NonNull Long key) {
+            RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForItemId(key);
+            return viewHolder.getLayoutPosition();
         }
     }
 }
