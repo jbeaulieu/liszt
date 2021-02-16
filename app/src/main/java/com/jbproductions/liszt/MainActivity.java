@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.Selection;
 import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StableIdKeyProvider;
@@ -31,6 +32,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,23 +79,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        editTaskButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Task thisTask = new Task(newTaskText.getText().toString(), false);
-//                mViewModel.update(thisTask);
-//                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
-//            }
-//        });
-//
-//        deleteTaskButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Task thisTask = new Task(newTaskText.getText().toString(), false);
-//                mViewModel.delete(thisTask);
-//                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
-//            }
-//        });
+        editTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+
+                Iterator<Long> iterator = selectedItems.iterator();
+                while(iterator.hasNext()) {
+                    Log.d("NEXT", String.valueOf(iterator.next()));
+                }
+            }
+        });
+
+        deleteTaskButton.setOnClickListener(view -> {
+            Selection<Long> selectedItems = mSelectionTracker.getSelection();
+            for (Long item : selectedItems) {
+                mViewModel.deleteTaskByID(item);
+            }
+            mSelectionTracker.clearSelection();
+        });
 
         newTaskText.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -155,6 +160,28 @@ public class MainActivity extends AppCompatActivity {
         ).withSelectionPredicate(SelectionPredicates.<Long>createSelectAnything()).build();
 
         archiveAdapter.setSelectionTracker(mSelectionTracker2);
+
+        mSelectionTracker.addObserver(new SelectionTracker.SelectionObserver<Long>() {
+            @Override
+            public void onSelectionChanged() {
+                super.onSelectionChanged();
+                int selectionSize = mSelectionTracker.getSelection().size();
+                switch (selectionSize) {
+                    case 0:
+                        deleteTaskButton.setVisibility(View.GONE);
+                        editTaskButton.setVisibility(View.GONE);
+                        break;
+                    case 1:
+                        deleteTaskButton.setVisibility(View.VISIBLE);
+                        editTaskButton.setVisibility(View.VISIBLE);
+                        break;
+                    default:
+                        deleteTaskButton.setVisibility(View.VISIBLE);
+                        editTaskButton.setVisibility(View.GONE);
+                        break;
+                }
+            }
+        });
     }
 
     @Override

@@ -31,4 +31,5 @@ public class ViewModel extends AndroidViewModel {
     public void insert(Task task) { dataRepository.insert(task); }
     public void update(Task task) { dataRepository.update(task); }
     public void delete(Task task) { dataRepository.delete(task); }
+    public void deleteTaskByID(long id) { dataRepository.deleteTaskByID(id); }
 }

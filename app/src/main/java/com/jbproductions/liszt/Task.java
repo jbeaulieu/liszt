@@ -16,7 +16,7 @@ public class Task {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    private int id;
+    private long id;
 
     @NonNull
     @ColumnInfo(name = "name")
@@ -38,13 +38,13 @@ public class Task {
         this.mModified = new Date();
     }
 
-    public int getId(){ return this.id; }
+    public long getId(){ return this.id; }
     public String getName(){ return this.mName; }
     public boolean getStatus(){ return this.mStatus; }
     public Date getCreated(){ return this.mCreated; }
     public Date getModified(){ return this.mModified; }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(long id) { this.id = id; }
     public void setStatus(boolean status) { this.mStatus = status; }
     public void setCreated(Date created) { this.mCreated = created; }
     public void setModified(Date modified) { this.mModified = modified; }
