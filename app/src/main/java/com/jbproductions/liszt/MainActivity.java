@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
@@ -154,28 +155,6 @@ public class MainActivity extends AppCompatActivity {
         ).withSelectionPredicate(SelectionPredicates.<Long>createSelectAnything()).build();
 
         archiveAdapter.setSelectionTracker(mSelectionTracker2);
-
-/*        ListItemRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
-                ListItemRecyclerView, new ClickListener() {
-            @Override
-            public void onClick(View view, final int position) {
-                //Values are passing to activity & to fragment as well
-                Toast.makeText(MainActivity.this, "Single Click on position        :" + position,
-                        Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-                String thisTaskName = mViewModel.getOpenTasks().getValue().get(position).getTask();
-                Boolean thisTaskStatus = mViewModel.getOpenTasks().getValue().get(position).getStatus();
-                Task thisTask = new Task(thisTaskName, thisTaskStatus);
-                mViewModel.delete(thisTask);
-                view.setBackgroundColor(0xFF00FF00);
-                Log.d("TestCodeTag", "Value: " + mViewModel.getOpenTasks().getValue().get(position).getTask());
-                Toast.makeText(MainActivity.this, "Long press on position :" + position,
-                        Toast.LENGTH_LONG).show();
-            }
-        }));*/
     }
 
     @Override
@@ -200,63 +179,21 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static interface ClickListener {
-        public void onClick(View view, int position);
-
-        public void onLongClick(View view, int position);
-    }
-
-    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-
-        private ClickListener clicklistener;
-        private GestureDetector gestureDetector;
-
-        public RecyclerTouchListener(Context context, final RecyclerView recycleView, final ClickListener clicklistener) {
-
-            this.clicklistener = clicklistener;
-            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onSingleTapUp(MotionEvent e) {
-                    return true;
-                }
-
-                @Override
-                public void onLongPress(MotionEvent e) {
-                    View child = recycleView.findChildViewUnder(e.getX(), e.getY());
-                    if (child != null && clicklistener != null) {
-                        clicklistener.onLongClick(child, recycleView.getChildAdapterPosition(child));
-                    }
-                }
-            });
-        }
-
-        @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-            View child = rv.findChildViewUnder(e.getX(), e.getY());
-            if (child != null && clicklistener != null && gestureDetector.onTouchEvent(e)) {
-                clicklistener.onClick(child, rv.getChildAdapterPosition(child));
-            }
-
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-        }
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
+    @Override
+    public void onBackPressed() {
+        if (mSelectionTracker.hasSelection()) {
+            mSelectionTracker.clearSelection();
+        } else {
+            super.onBackPressed();
         }
     }
 
-    public class TaskKeyProvider extends ItemKeyProvider<Long> {
+    private static class TaskKeyProvider extends ItemKeyProvider<Long> {
 
-        private RecyclerView mRecyclerView;
+        private final RecyclerView mRecyclerView;
 
         public TaskKeyProvider(RecyclerView recyclerView) {
-            super(SCOPE_MAPPED);
+            super(SCOPE_CACHED);
             this.mRecyclerView = recyclerView;
         }
 
@@ -270,6 +207,40 @@ public class MainActivity extends AppCompatActivity {
         public int getPosition(@NonNull Long key) {
             RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForItemId(key);
             return viewHolder.getLayoutPosition();
+        }
+    }
+
+    private static class TaskDetailsLookup extends ItemDetailsLookup<Long> {
+
+        private final RecyclerView mRecyclerView;
+
+        public TaskDetailsLookup(RecyclerView recyclerView) {
+            mRecyclerView = recyclerView;
+        }
+
+        @Nullable
+        @Override
+        public ItemDetails<Long> getItemDetails(@NonNull MotionEvent event) {
+            View view = mRecyclerView.findChildViewUnder(event.getX(), event.getY());
+            if (view != null) {
+                final RecyclerView.ViewHolder viewHolder = mRecyclerView.getChildViewHolder(view);
+                if (viewHolder instanceof TaskListAdapter.TaskViewHolder) {
+                    final TaskListAdapter.TaskViewHolder taskViewHolder = (TaskListAdapter.TaskViewHolder) viewHolder;
+                    return new ItemDetailsLookup.ItemDetails<Long>() {
+                        @Override
+                        public int getPosition() {
+                            return viewHolder.getAdapterPosition();
+                        }
+
+                        @Nullable
+                        @Override
+                        public Long getSelectionKey() {
+                            return taskViewHolder.getItemId();
+                        }
+                    };
+                }
+            }
+            return null;
         }
     }
 }

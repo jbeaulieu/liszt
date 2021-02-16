@@ -42,33 +42,32 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
 
     // Set Task attributes based on stored data
     @Override
-    public void onBindViewHolder(TaskViewHolder holder, int position) {
+    public void onBindViewHolder(TaskViewHolder viewHolder, int position) {
 
-        Task current = getItem(position);
-        holder.position = position;
-        holder.textView.setActivated(mSelectionTracker.isSelected((long) current.getId()));
-        holder.textView.setText(current.getTask());
-        holder.checkBox.setChecked(current.getStatus());
+        Task task = getItem(position);
 
-        holder.checkBox.setOnClickListener(view -> {
-            String taskName = holder.textView.getText().toString();
-            boolean status = holder.checkBox.isChecked();
-            current.setStatus(status);
+        viewHolder.textView.setText(task.getName());
+        viewHolder.checkBox.setChecked(task.getStatus());
+        viewHolder.textView.setActivated(mSelectionTracker.isSelected((long) task.getId()));
 
-            if (holder.checkBox.isChecked()) {
+        viewHolder.checkBox.setOnClickListener(view -> {
+            String taskName = viewHolder.textView.getText().toString();
+            boolean status = viewHolder.checkBox.isChecked();
+            task.setStatus(status);
+
+            if (viewHolder.checkBox.isChecked()) {
                 Log.d("myTag", "Task: " + taskName + " -> selected.");
             } else {
                 Log.d("myTag", "Task: " + taskName + " -> un-selected.");
             }
 
-            mTaskClickInterface.OnCheckCallback(current);
+            mTaskClickInterface.OnCheckCallback(task);
         });
     }
 
     @Override
     public long getItemId(int position) {
-        int itemID = getItem(position).getId();
-        return (long)itemID;
+        return getItem(position).getId();
     }
 
     // Compares whether two Tasks visual representations are the same
@@ -76,7 +75,7 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
 
         @Override
         public boolean areItemsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
-            return oldTask.getTask().equals(newTask.getTask());
+            return oldTask.getName().equals(newTask.getName());
         }
 
         @Override
@@ -85,10 +84,9 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
         }
     }
 
-    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+    static class TaskViewHolder extends RecyclerView.ViewHolder {
 
         //// Member Attributes
-        public int position;
         private final TextView textView;
         private final CheckBox checkBox;
 

@@ -28,9 +28,9 @@ public interface TaskDao {
     @Query("SELECT * FROM task_table")
     LiveData<List<Task>> getAllTasks();
 
-    @Query("SELECT id, task, status FROM task_table WHERE status=0")
+    @Query("SELECT id, name, status FROM task_table WHERE status=0")
     LiveData<List<Task>> getOpenTasks();
 
-    @Query("SELECT id, task, status FROM task_table WHERE status=1")
+    @Query("SELECT id, name, status FROM task_table WHERE status=1")
     LiveData<List<Task>> getCompleteTasks();
 }
