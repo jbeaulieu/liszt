@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@color/teal_700"
-    tools:context=".TaskFragment">
+    android:layout_marginHorizontal="6dp"
+    android:layout_marginVertical="2dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="6dp" >
+
+<LinearLayout
+    android:id="@+id/task_layout"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selection_background">
 
     <CheckBox android:id="@+id/task_checkbox"
         android:layout_width="wrap_content"
@@ -14,9 +21,9 @@
 
     <TextView
         android:id="@+id/task_text"
-        android:background="@drawable/selection_background"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Item text goes here." />
 
 </LinearLayout>
+</androidx.cardview.widget.CardView>

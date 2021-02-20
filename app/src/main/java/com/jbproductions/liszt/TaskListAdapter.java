@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -48,7 +49,7 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
 
         viewHolder.textView.setText(task.getName());
         viewHolder.checkBox.setChecked(task.getStatus());
-        viewHolder.textView.setActivated(mSelectionTracker.isSelected((long) task.getId()));
+        viewHolder.taskLayout.setActivated(mSelectionTracker.isSelected((long) task.getId()));
 
         viewHolder.checkBox.setOnClickListener(view -> {
             String taskName = viewHolder.textView.getText().toString();
@@ -87,6 +88,7 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
     static class TaskViewHolder extends RecyclerView.ViewHolder {
 
         //// Member Attributes
+        private final LinearLayout taskLayout;
         private final TextView textView;
         private final CheckBox checkBox;
 
@@ -98,6 +100,7 @@ public class TaskListAdapter extends ListAdapter<Task, TaskListAdapter.TaskViewH
             super(view);
 
             // Initialize member attributes for each view in the Task fragment.
+            taskLayout = (LinearLayout) view.findViewById(R.id.task_layout);
             textView = (TextView) view.findViewById(R.id.task_text);
             checkBox = (CheckBox) view.findViewById(R.id.task_checkbox);
         }
