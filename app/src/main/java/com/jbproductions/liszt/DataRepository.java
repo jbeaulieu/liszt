@@ -55,4 +55,10 @@ public class DataRepository {
             mTaskDao.deleteTask(task);
         });
     }
+
+    void deleteTaskByID(long id) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
+            mTaskDao.deleteTaskByID(id);
+        });
+    }
 }

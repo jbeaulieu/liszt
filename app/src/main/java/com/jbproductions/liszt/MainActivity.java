@@ -6,9 +6,18 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.Selection;
+import androidx.recyclerview.selection.SelectionPredicates;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.StableIdKeyProvider;
+import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,8 +33,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.util.Iterator;
+
 public class MainActivity extends AppCompatActivity {
 
+    SelectionTracker<Long> mSelectionTracker;
+    SelectionTracker<Long> mSelectionTracker2;
     TaskClickInterface mTaskClickInterface;
     private ImageButton addTaskButton;
     private ImageButton editTaskButton;
@@ -66,23 +79,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        editTaskButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Task thisTask = new Task(newTaskText.getText().toString(), false);
-//                mViewModel.update(thisTask);
-//                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
-//            }
-//        });
-//
-//        deleteTaskButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Task thisTask = new Task(newTaskText.getText().toString(), false);
-//                mViewModel.delete(thisTask);
-//                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
-//            }
-//        });
+        editTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+
+                Iterator<Long> iterator = selectedItems.iterator();
+                while(iterator.hasNext()) {
+                    Log.d("NEXT", String.valueOf(iterator.next()));
+                }
+            }
+        });
+
+        deleteTaskButton.setOnClickListener(view -> {
+            Selection<Long> selectedItems = mSelectionTracker.getSelection();
+            for (Long item : selectedItems) {
+                mViewModel.deleteTaskByID(item);
+            }
+            mSelectionTracker.clearSelection();
+        });
 
         newTaskText.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -118,6 +133,16 @@ public class MainActivity extends AppCompatActivity {
             adapter.submitList(tasks);
         });
 
+        mSelectionTracker = new SelectionTracker.Builder<Long>(
+                "selection-id",
+                ListItemRecyclerView,
+                new TaskKeyProvider(ListItemRecyclerView),
+                new TaskDetailsLookup(ListItemRecyclerView),
+                StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(SelectionPredicates.<Long>createSelectAnything()).build();
+
+        adapter.setSelectionTracker(mSelectionTracker);
+
         final TaskListAdapter archiveAdapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
         ArchiveRecyclerView.setAdapter(archiveAdapter);
         ArchiveRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -126,27 +151,37 @@ public class MainActivity extends AppCompatActivity {
             archiveAdapter.submitList(tasks);
         });
 
-        ListItemRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
-                ListItemRecyclerView, new ClickListener() {
-            @Override
-            public void onClick(View view, final int position) {
-                //Values are passing to activity & to fragment as well
-                Toast.makeText(MainActivity.this, "Single Click on position        :" + position,
-                        Toast.LENGTH_SHORT).show();
-            }
+        mSelectionTracker2 = new SelectionTracker.Builder<Long>(
+                "selection-id",
+                ArchiveRecyclerView,
+                new TaskKeyProvider(ArchiveRecyclerView),
+                new TaskDetailsLookup(ArchiveRecyclerView),
+                StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(SelectionPredicates.<Long>createSelectAnything()).build();
 
+        archiveAdapter.setSelectionTracker(mSelectionTracker2);
+
+        mSelectionTracker.addObserver(new SelectionTracker.SelectionObserver<Long>() {
             @Override
-            public void onLongClick(View view, int position) {
-                String thisTaskName = mViewModel.getOpenTasks().getValue().get(position).getTask();
-                Boolean thisTaskStatus = mViewModel.getOpenTasks().getValue().get(position).getStatus();
-                Task thisTask = new Task(thisTaskName, thisTaskStatus);
-                mViewModel.delete(thisTask);
-                view.setBackgroundColor(0xFF00FF00);
-                Log.d("TestCodeTag", "Value: " + mViewModel.getOpenTasks().getValue().get(position).getTask());
-                Toast.makeText(MainActivity.this, "Long press on position :" + position,
-                        Toast.LENGTH_LONG).show();
+            public void onSelectionChanged() {
+                super.onSelectionChanged();
+                int selectionSize = mSelectionTracker.getSelection().size();
+                switch (selectionSize) {
+                    case 0:
+                        deleteTaskButton.setVisibility(View.GONE);
+                        editTaskButton.setVisibility(View.GONE);
+                        break;
+                    case 1:
+                        deleteTaskButton.setVisibility(View.VISIBLE);
+                        editTaskButton.setVisibility(View.VISIBLE);
+                        break;
+                    default:
+                        deleteTaskButton.setVisibility(View.VISIBLE);
+                        editTaskButton.setVisibility(View.GONE);
+                        break;
+                }
             }
-        }));
+        });
     }
 
     @Override
@@ -171,54 +206,68 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static interface ClickListener {
-        public void onClick(View view, int position);
-
-        public void onLongClick(View view, int position);
+    @Override
+    public void onBackPressed() {
+        if (mSelectionTracker.hasSelection()) {
+            mSelectionTracker.clearSelection();
+        } else {
+            super.onBackPressed();
+        }
     }
 
-    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+    private static class TaskKeyProvider extends ItemKeyProvider<Long> {
 
-        private ClickListener clicklistener;
-        private GestureDetector gestureDetector;
+        private final RecyclerView mRecyclerView;
 
-        public RecyclerTouchListener(Context context, final RecyclerView recycleView, final ClickListener clicklistener) {
+        public TaskKeyProvider(RecyclerView recyclerView) {
+            super(SCOPE_CACHED);
+            this.mRecyclerView = recyclerView;
+        }
 
-            this.clicklistener = clicklistener;
-            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onSingleTapUp(MotionEvent e) {
-                    return true;
-                }
-
-                @Override
-                public void onLongPress(MotionEvent e) {
-                    View child = recycleView.findChildViewUnder(e.getX(), e.getY());
-                    if (child != null && clicklistener != null) {
-                        clicklistener.onLongClick(child, recycleView.getChildAdapterPosition(child));
-                    }
-                }
-            });
+        @Nullable
+        @Override
+        public Long getKey(int position) {
+            return mRecyclerView.getAdapter().getItemId(position);
         }
 
         @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-            View child = rv.findChildViewUnder(e.getX(), e.getY());
-            if (child != null && clicklistener != null && gestureDetector.onTouchEvent(e)) {
-                clicklistener.onClick(child, rv.getChildAdapterPosition(child));
+        public int getPosition(@NonNull Long key) {
+            RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForItemId(key);
+            return viewHolder.getLayoutPosition();
+        }
+    }
+
+    private static class TaskDetailsLookup extends ItemDetailsLookup<Long> {
+
+        private final RecyclerView mRecyclerView;
+
+        public TaskDetailsLookup(RecyclerView recyclerView) {
+            mRecyclerView = recyclerView;
+        }
+
+        @Nullable
+        @Override
+        public ItemDetails<Long> getItemDetails(@NonNull MotionEvent event) {
+            View view = mRecyclerView.findChildViewUnder(event.getX(), event.getY());
+            if (view != null) {
+                final RecyclerView.ViewHolder viewHolder = mRecyclerView.getChildViewHolder(view);
+                if (viewHolder instanceof TaskListAdapter.TaskViewHolder) {
+                    final TaskListAdapter.TaskViewHolder taskViewHolder = (TaskListAdapter.TaskViewHolder) viewHolder;
+                    return new ItemDetailsLookup.ItemDetails<Long>() {
+                        @Override
+                        public int getPosition() {
+                            return viewHolder.getAdapterPosition();
+                        }
+
+                        @Nullable
+                        @Override
+                        public Long getSelectionKey() {
+                            return taskViewHolder.getItemId();
+                        }
+                    };
+                }
             }
-
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-        }
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
+            return null;
         }
     }
 }

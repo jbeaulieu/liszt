@@ -28,7 +28,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="2dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:src="@drawable/ic_baseline_edit_24" />
 
             <ImageButton
@@ -41,7 +41,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="2dp"
                 android:background="@null"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:src="@drawable/ic_baseline_delete_24" />
 
         </androidx.appcompat.widget.Toolbar>
