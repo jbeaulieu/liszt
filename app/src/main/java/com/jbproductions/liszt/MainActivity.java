@@ -1,6 +1,5 @@
 package com.jbproductions.liszt;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -14,15 +13,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.Selection;
-import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
-import androidx.recyclerview.selection.StableIdKeyProvider;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,14 +27,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
 
     SelectionTracker<Long> mSelectionTracker;
-    SelectionTracker<Long> mSelectionTracker2;
     TaskClickInterface mTaskClickInterface;
     private ImageButton addTaskButton;
     private ImageButton editTaskButton;
@@ -51,8 +45,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        RecyclerView ListItemRecyclerView = findViewById(R.id.ListItemRecyclerView);
-        RecyclerView ArchiveRecyclerView = findViewById(R.id.ArchiveRecyclerView);
+        RecyclerView listRecyclerView = findViewById(R.id.list_recycler_view);
         setSupportActionBar(toolbar);
         addTaskButton = (ImageButton) findViewById(R.id.add_task_button);
         editTaskButton = (ImageButton) findViewById(R.id.edit_task_button);
@@ -126,40 +119,50 @@ public class MainActivity extends AppCompatActivity {
         };
 
         final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
-        ListItemRecyclerView.setAdapter(adapter);
-        ListItemRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        listRecyclerView.setAdapter(adapter);
+        listRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mViewModel.getOpenTasks().observe(this, tasks -> {
+        mViewModel.getTaskList().observe(this, tasks -> {
+            int dividerIndex = tasks.size();
+            for (int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+                if (task.getStatus()) {
+                    dividerIndex = i;
+                    break;
+                }
+            }
+            Task divider = new Task("", false);
+            divider.setId(-1);
+            tasks.add(dividerIndex, divider);
             adapter.submitList(tasks);
         });
 
+        SelectionTracker.SelectionPredicate<Long> noDividerSelection = new SelectionTracker.SelectionPredicate<Long>() {
+            @Override
+            public boolean canSetStateForKey(@NonNull Long key, boolean nextState) {
+                return key != -1;
+            }
+
+            @Override
+            public boolean canSetStateAtPosition(int position, boolean nextState) {
+                return true;
+            }
+
+            @Override
+            public boolean canSelectMultiple() {
+                return true;
+            }
+        };
+
         mSelectionTracker = new SelectionTracker.Builder<Long>(
                 "selection-id",
-                ListItemRecyclerView,
-                new TaskKeyProvider(ListItemRecyclerView),
-                new TaskDetailsLookup(ListItemRecyclerView),
+                listRecyclerView,
+                new TaskKeyProvider(listRecyclerView),
+                new TaskDetailsLookup(listRecyclerView),
                 StorageStrategy.createLongStorage()
-        ).withSelectionPredicate(SelectionPredicates.<Long>createSelectAnything()).build();
+        ).withSelectionPredicate(noDividerSelection).build();
 
         adapter.setSelectionTracker(mSelectionTracker);
-
-        final TaskListAdapter archiveAdapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
-        ArchiveRecyclerView.setAdapter(archiveAdapter);
-        ArchiveRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        mViewModel.getCompleteTasks().observe(this, tasks -> {
-            archiveAdapter.submitList(tasks);
-        });
-
-        mSelectionTracker2 = new SelectionTracker.Builder<Long>(
-                "selection-id",
-                ArchiveRecyclerView,
-                new TaskKeyProvider(ArchiveRecyclerView),
-                new TaskDetailsLookup(ArchiveRecyclerView),
-                StorageStrategy.createLongStorage()
-        ).withSelectionPredicate(SelectionPredicates.<Long>createSelectAnything()).build();
-
-        archiveAdapter.setSelectionTracker(mSelectionTracker2);
 
         mSelectionTracker.addObserver(new SelectionTracker.SelectionObserver<Long>() {
             @Override
@@ -259,7 +262,21 @@ public class MainActivity extends AppCompatActivity {
                             return viewHolder.getAdapterPosition();
                         }
 
-                        @Nullable
+                        @NonNull
+                        @Override
+                        public Long getSelectionKey() {
+                            return taskViewHolder.getItemId();
+                        }
+                    };
+                } else if (viewHolder instanceof TaskListAdapter.DividerViewHolder) {
+                    final TaskListAdapter.DividerViewHolder taskViewHolder = (TaskListAdapter.DividerViewHolder) viewHolder;
+                    return new ItemDetailsLookup.ItemDetails<Long>() {
+                        @Override
+                        public int getPosition() {
+                            return viewHolder.getAdapterPosition();
+                        }
+
+                        @NonNull
                         @Override
                         public Long getSelectionKey() {
                             return taskViewHolder.getItemId();
