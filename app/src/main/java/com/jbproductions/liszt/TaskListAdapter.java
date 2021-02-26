@@ -114,13 +114,13 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
         private void bind(Task task, boolean isSelected, TaskClickInterface clickInterface) {
             textView.setText(task.getName());
-            checkBox.setChecked(task.getStatus());
+            checkBox.setChecked(task.getComplete());
             taskLayout.setActivated(isSelected);
 
             checkBox.setOnClickListener(view -> {
                 String taskName = textView.getText().toString();
                 boolean status = checkBox.isChecked();
-                task.setStatus(status);
+                task.setComplete(status);
 
                 if (checkBox.isChecked()) {
                     Log.d("myTag", "Task: " + taskName + " -> selected.");

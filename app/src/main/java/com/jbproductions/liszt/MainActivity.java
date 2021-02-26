@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             int dividerIndex = tasks.size();
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
-                if (task.getStatus()) {
+                if (task.getComplete()) {
                     dividerIndex = i;
                     break;
                 }

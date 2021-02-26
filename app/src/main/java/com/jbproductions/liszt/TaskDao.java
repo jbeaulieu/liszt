@@ -25,15 +25,15 @@ public interface TaskDao {
     @Delete
     void deleteTask(Task task);
 
-    @Query("DELETE FROM task_table WHERE id = :id")
+    @Query("DELETE FROM tasks WHERE id = :id")
     void deleteTaskByID(long id);
 
-    @Query("SELECT id, name, status FROM task_table WHERE status=0 UNION ALL SELECT id, name, status from task_table WHERE status=1")
+    @Query("SELECT id, name, complete FROM tasks WHERE complete=0 UNION ALL SELECT id, name, complete from tasks WHERE complete=1")
     LiveData<List<Task>> getAllTasks();
 
-    @Query("SELECT id, name, status FROM task_table WHERE status=0")
+    @Query("SELECT id, name, complete FROM tasks WHERE complete=0")
     LiveData<List<Task>> getOpenTasks();
 
-    @Query("SELECT id, name, status FROM task_table WHERE status=1")
+    @Query("SELECT id, name, complete FROM tasks WHERE complete=1")
     LiveData<List<Task>> getCompleteTasks();
 }
