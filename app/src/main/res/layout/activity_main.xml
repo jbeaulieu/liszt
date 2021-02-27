@@ -68,20 +68,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="7"
                 android:inputType="text"
-                android:text="" />
-
-            <ImageButton
-                android:id="@+id/add_task_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="2dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginBottom="5dp"
-                android:layout_weight="1"
-                android:background="@color/timberwolf"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_baseline_add_24" />
+                android:imeOptions="actionSend"
+                android:hint="What's on your mind?" />
 
         </LinearLayout>
 
@@ -98,7 +86,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@drawable/ic_baseline_add_24" />
 
 
 

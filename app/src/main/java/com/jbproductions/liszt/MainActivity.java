@@ -1,5 +1,6 @@
 package com.jbproductions.liszt;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -25,8 +26,11 @@ import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.Iterator;
 
@@ -34,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
     SelectionTracker<Long> mSelectionTracker;
     TaskClickInterface mTaskClickInterface;
-    private ImageButton addTaskButton;
     private ImageButton editTaskButton;
     private ImageButton deleteTaskButton;
     private EditText newTaskText;
@@ -47,40 +50,38 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         RecyclerView listRecyclerView = findViewById(R.id.list_recycler_view);
         setSupportActionBar(toolbar);
-        addTaskButton = (ImageButton) findViewById(R.id.add_task_button);
         editTaskButton = (ImageButton) findViewById(R.id.edit_task_button);
         deleteTaskButton = (ImageButton) findViewById(R.id.delete_task_button);
 
         newTaskText = (EditText) findViewById(R.id.newTaskText);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        addTaskButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        newTaskText.setOnEditorActionListener((view, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
                 Task thisTask = new Task(newTaskText.getText().toString(), false);
                 mViewModel.insert(thisTask);
                 newTaskText.getText().clear();
-                Log.d("myTag", "Button Press Captured: " + newTaskText.getText());
+                Log.d("myTag", "Keyboard Enter Captured: " + newTaskText.getText());
+                newTaskText.requestFocus();
+                handled = true;
             }
+            return handled;
         });
 
-        editTaskButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
-                Iterator<Long> iterator = selectedItems.iterator();
-                while(iterator.hasNext()) {
-                    Log.d("NEXT", String.valueOf(iterator.next()));
-                }
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
+            newTaskText.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(newTaskText, InputMethodManager.SHOW_IMPLICIT);
+        });
+
+        editTaskButton.setOnClickListener(view -> {
+            Selection<Long> selectedItems = mSelectionTracker.getSelection();
+
+            Iterator<Long> iterator = selectedItems.iterator();
+            while(iterator.hasNext()) {
+                Log.d("NEXT", String.valueOf(iterator.next()));
             }
         });
 
@@ -92,30 +93,11 @@ public class MainActivity extends AppCompatActivity {
             mSelectionTracker.clearSelection();
         });
 
-        newTaskText.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    // Perform action on key press
-                    Task thisTask = new Task(newTaskText.getText().toString(), false);
-                    mViewModel.insert(thisTask);
-                    newTaskText.getText().clear();
-                    Log.d("myTag", "Keyboard Enter Captured: " + newTaskText.getText());
-                    return true;
-                }
-                return false;
-            }
-        });
-
         mViewModel = new ViewModelProvider(this).get(ViewModel.class);
 
-        mTaskClickInterface = new TaskClickInterface() {
-            @Override
-            public void OnCheckCallback(Task task) {
-                mViewModel.update(task);
-                Log.d("HERE", "HERE");
-            }
+        mTaskClickInterface = task -> {
+            mViewModel.update(task);
+            Log.d("HERE", "HERE");
         };
 
         final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
