@@ -108,14 +108,16 @@ public class MainActivity extends AppCompatActivity {
             int dividerIndex = tasks.size();
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
-                if (task.getComplete()) {
-                    dividerIndex = i;
+                if (task.getId() == -1) {
+                    break;
+                } else if (task.getComplete()) {
+                    Task divider = new Task("", false);
+                    divider.setId(-1);
+                    tasks.add(i, divider);
                     break;
                 }
             }
-            Task divider = new Task("", false);
-            divider.setId(-1);
-            tasks.add(dividerIndex, divider);
+
             adapter.submitList(tasks);
         });
 
