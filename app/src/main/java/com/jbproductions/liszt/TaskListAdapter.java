@@ -83,7 +83,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
         @Override
         public boolean areItemsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
-            return oldTask.getName().equals(newTask.getName());
+            return oldTask.getId()==newTask.getId() && oldTask.getName().equals(newTask.getName());
         }
 
         @Override

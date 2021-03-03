@@ -53,6 +53,6 @@ public class Task {
     public void setModified(Date modified) { this.mModified = modified; }
 
     public boolean equals(Task otherTask) {
-        return mName.equals(otherTask.mName) && mComplete == otherTask.mComplete;
+        return id==otherTask.getId() && mName.equals(otherTask.mName) && mComplete == otherTask.mComplete;
     }
 }
