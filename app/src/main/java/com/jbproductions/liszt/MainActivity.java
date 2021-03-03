@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.InputType;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -33,10 +31,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
-
-import java.util.Date;
-import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -139,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         listRecyclerView.setAdapter(adapter);
         listRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mViewModel.getTaskList().observe(this, tasks -> {
+        mViewModel.getAllTasks().observe(this, tasks -> {
             int dividerIndex = tasks.size();
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);

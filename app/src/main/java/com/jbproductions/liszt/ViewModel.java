@@ -24,7 +24,7 @@ public class ViewModel extends AndroidViewModel {
         completeTasks = dataRepository.getCompleteTasks();
     }
 
-    LiveData<List<Task>> getTaskList() { return taskList; }
+    LiveData<List<Task>> getAllTasks() { return taskList; }
     LiveData<List<Task>> getOpenTasks() { return openTasks; }
     LiveData<List<Task>> getCompleteTasks() { return completeTasks; }
 
