@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 builder.show();
-//                String newName = "task" + selectedItem.toString();
+                mSelectionTracker.clearSelection();
             }
         });
 
