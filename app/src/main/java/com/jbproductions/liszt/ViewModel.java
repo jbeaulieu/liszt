@@ -1,6 +1,7 @@
 package com.jbproductions.liszt;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -31,5 +32,6 @@ public class ViewModel extends AndroidViewModel {
     public void insert(Task task) { dataRepository.insert(task); }
     public void update(Task task) { dataRepository.update(task); }
     public void delete(Task task) { dataRepository.delete(task); }
+    public Task getTaskByID(long id) { return dataRepository.getTaskByID(id); }
     public void deleteTaskByID(long id) { dataRepository.deleteTaskByID(id); }
 }

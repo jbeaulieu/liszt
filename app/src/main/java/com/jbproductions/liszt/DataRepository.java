@@ -1,10 +1,13 @@
 package com.jbproductions.liszt;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Repository class to manage the ViewModel's access to data.
@@ -54,6 +57,20 @@ public class DataRepository {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
             mTaskDao.deleteTask(task);
         });
+    }
+
+    Task getTaskByID(long id) {
+        Task retTask = null;
+        Future<Task> thisTask = TaskRoomDatabase.databaseWriteExecutor.submit(() -> mTaskDao.getTaskByID(id));
+        try {
+            retTask = thisTask.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        Log.d("taskDaoTag", retTask.getName());
+        return retTask;
     }
 
     void deleteTaskByID(long id) {

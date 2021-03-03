@@ -1,6 +1,7 @@
 package com.jbproductions.liszt;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -8,6 +9,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,6 +21,7 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -32,6 +35,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.Date;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
@@ -79,9 +83,40 @@ public class MainActivity extends AppCompatActivity {
         editTaskButton.setOnClickListener(view -> {
             Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
-            Iterator<Long> iterator = selectedItems.iterator();
-            while(iterator.hasNext()) {
-                Log.d("NEXT", String.valueOf(iterator.next()));
+            OnOK getAlertDialogText = new OnOK() {
+                @Override
+                public void onTextEntered(String text, long id) {
+                    Task thisTask;
+                    thisTask = mViewModel.getTaskByID(id);
+                    thisTask.setName(text);
+                    mViewModel.update(thisTask);
+                }
+            };
+
+            for (Long selectedItem : selectedItems) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("New Task Name");
+
+                final EditText input = new EditText(MainActivity.this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+                builder.setView(input);
+
+                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getAlertDialogText.onTextEntered(input.getText().toString(), selectedItem);
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+//                String newName = "task" + selectedItem.toString();
             }
         });
 
@@ -270,5 +305,9 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+    }
+
+    interface OnOK{
+        void onTextEntered(String text, long id);
     }
 }

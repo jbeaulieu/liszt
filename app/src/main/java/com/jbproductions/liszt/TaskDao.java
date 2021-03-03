@@ -25,6 +25,9 @@ public interface TaskDao {
     @Delete
     void deleteTask(Task task);
 
+    @Query("SELECT id, name, complete FROM tasks WHERE id = :id")
+    Task getTaskByID(long id);
+
     @Query("DELETE FROM tasks WHERE id = :id")
     void deleteTaskByID(long id);
 
