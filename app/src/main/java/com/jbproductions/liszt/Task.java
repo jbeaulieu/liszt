@@ -4,12 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
 import java.util.Date;
 
 /**
- * Entity class to represent a SQLite table of list tasks
- * Currently, each task only contains a String with the task's name
+ * Entity class to represent a SQLite table of list tasks.
  */
 @Entity(tableName = "tasks")
 public class Task {
@@ -33,6 +31,11 @@ public class Task {
     @ColumnInfo(name = "date_modified", defaultValue = "CURRENT_TIMESTAMP")
     private Date mModified;
 
+    /**
+     * Default constructor for task. DateCreated and DateModified are created by default.
+     * @param name String name of task
+     * @param complete Boolean reflecting whether a task has been marked as complete
+     */
     public Task(@NonNull String name, @NonNull boolean complete) {
         this.mName = name;
         this.mComplete = complete;
@@ -40,19 +43,47 @@ public class Task {
         this.mModified = new Date();
     }
 
-    public long getId(){ return this.id; }
-    public String getName(){ return this.mName; }
-    public boolean getComplete(){ return this.mComplete; }
-    public Date getCreated(){ return this.mCreated; }
-    public Date getModified(){ return this.mModified; }
+    public long getId() {
+        return this.id;
+    }
 
-    public void setId(long id) { this.id = id; }
-    public void setName(String name) { this.mName = name; }
-    public void setComplete(boolean complete) { this.mComplete = complete; }
-    public void setCreated(Date created) { this.mCreated = created; }
-    public void setModified(Date modified) { this.mModified = modified; }
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return this.mName;
+    }
+
+    public void setName(String name) {
+        this.mName = name;
+    }
+
+    public boolean getComplete() {
+        return this.mComplete;
+    }
+
+    public void setComplete(boolean complete) {
+        this.mComplete = complete;
+    }
+
+    public Date getCreated() {
+        return this.mCreated;
+    }
+
+    public void setCreated(Date created) {
+        this.mCreated = created;
+    }
+
+    public Date getModified() {
+        return this.mModified;
+    }
+
+    public void setModified(Date modified) {
+        this.mModified = modified;
+    }
 
     public boolean equals(Task otherTask) {
-        return id==otherTask.getId() && mName.equals(otherTask.mName) && mComplete == otherTask.mComplete;
+        return id == otherTask.getId() && mName.equals(otherTask.mName) && mComplete == otherTask.mComplete;
     }
 }

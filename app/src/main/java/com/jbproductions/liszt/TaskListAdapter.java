@@ -7,24 +7,27 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * ListAdapter implementation to dynamically display a single task list.
+ */
 public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> {
 
+    private final TaskClickInterface mTaskClickInterface;
     //// Member Attributes
     private SelectionTracker<Long> mSelectionTracker;
-    private final TaskClickInterface mTaskClickInterface;
 
     //// Constructor Methods
 
-    protected TaskListAdapter(TaskClickInterface mTaskClickInterface, @NonNull DiffUtil.ItemCallback<Task> diffCallback) {
+    protected TaskListAdapter(TaskClickInterface taskClickInterface,
+                              @NonNull DiffUtil.ItemCallback<Task> diffCallback) {
         super(diffCallback);
-        this.mTaskClickInterface = mTaskClickInterface;
+        this.mTaskClickInterface = taskClickInterface;
         setHasStableIds(true);
     }
 
@@ -40,11 +43,11 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
         View view;
 
         switch (viewType) {
-            case VIEW_TYPES.Divider:
+            case ViewTypes.Divider:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.task_archive_header, parent, false);
                 return new DividerViewHolder(view);
-            case VIEW_TYPES.TaskView:
+            case ViewTypes.TaskView:
             default:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.fragment_task, parent, false);
@@ -58,7 +61,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
         Task task = getItem(position);
 
-        if (getItemViewType(position) == VIEW_TYPES.TaskView) {
+        if (getItemViewType(position) == ViewTypes.TaskView) {
             boolean isSelected = mSelectionTracker.isSelected((long) task.getId());
             ((TaskViewHolder) viewHolder).bind(task, isSelected, mTaskClickInterface);
         }
@@ -71,10 +74,10 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        if(getItem(position).getId() == -1) {
-            return VIEW_TYPES.Divider;
+        if (getItem(position).getId() == -1) {
+            return ViewTypes.Divider;
         } else {
-            return VIEW_TYPES.TaskView;
+            return ViewTypes.TaskView;
         }
     }
 
@@ -83,7 +86,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
         @Override
         public boolean areItemsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
-            return oldTask.getId()==newTask.getId() && oldTask.getName().equals(newTask.getName());
+            return oldTask.getId() == newTask.getId() && oldTask.getName().equals(newTask.getName());
         }
 
         @Override
@@ -128,7 +131,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
                     Log.d("myTag", "Task: " + taskName + " -> un-selected.");
                 }
 
-                clickInterface.OnCheckCallback(task);
+                clickInterface.onCheckCallback(task);
             });
         }
     }
@@ -141,7 +144,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
     }
 
-    private static class VIEW_TYPES {
+    private static class ViewTypes {
         public static final int TaskView = 1;
         public static final int Divider = 2;
     }

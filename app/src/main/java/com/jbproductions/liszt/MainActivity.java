@@ -3,9 +3,16 @@ package com.jbproductions.liszt;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
+import android.text.InputType;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -19,19 +26,11 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import android.text.InputType;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ImageButton;
-
+/**
+ * Main application activity.
+ */
 public class MainActivity extends AppCompatActivity {
 
     SelectionTracker<Long> mSelectionTracker;
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        RecyclerView listRecyclerView = findViewById(R.id.list_recycler_view);
         setSupportActionBar(toolbar);
         editTaskButton = (ImageButton) findViewById(R.id.edit_task_button);
         deleteTaskButton = (ImageButton) findViewById(R.id.delete_task_button);
@@ -77,11 +75,11 @@ public class MainActivity extends AppCompatActivity {
         editTaskButton.setOnClickListener(view -> {
             Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
-            OnOK getAlertDialogText = new OnOK() {
+            TextEditInterface getAlertDialogText = new TextEditInterface() {
                 @Override
                 public void onTextEntered(String text, long id) {
                     Task thisTask;
-                    thisTask = mViewModel.getTaskByID(id);
+                    thisTask = mViewModel.getTaskById(id);
                     thisTask.setName(text);
                     mViewModel.update(thisTask);
                 }
@@ -117,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         deleteTaskButton.setOnClickListener(view -> {
             Selection<Long> selectedItems = mSelectionTracker.getSelection();
             for (Long item : selectedItems) {
-                mViewModel.deleteTaskByID(item);
+                mViewModel.deleteTaskById(item);
             }
             mSelectionTracker.clearSelection();
         });
@@ -129,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("HERE", "HERE");
         };
 
+        RecyclerView listRecyclerView = findViewById(R.id.list_recycler_view);
         final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
         listRecyclerView.setAdapter(adapter);
         listRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -231,6 +230,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    interface TextEditInterface {
+        void onTextEntered(String text, long id);
+    }
+
     private static class TaskKeyProvider extends ItemKeyProvider<Long> {
 
         private final RecyclerView mRecyclerView;
@@ -266,13 +269,13 @@ public class MainActivity extends AppCompatActivity {
         public ItemDetails<Long> getItemDetails(@NonNull MotionEvent event) {
             View view = mRecyclerView.findChildViewUnder(event.getX(), event.getY());
             if (view != null) {
-                final RecyclerView.ViewHolder viewHolder = mRecyclerView.getChildViewHolder(view);
-                if (viewHolder instanceof TaskListAdapter.TaskViewHolder) {
-                    final TaskListAdapter.TaskViewHolder taskViewHolder = (TaskListAdapter.TaskViewHolder) viewHolder;
+                final RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(view);
+                if (holder instanceof TaskListAdapter.TaskViewHolder) {
+                    final TaskListAdapter.TaskViewHolder taskViewHolder = (TaskListAdapter.TaskViewHolder) holder;
                     return new ItemDetailsLookup.ItemDetails<Long>() {
                         @Override
                         public int getPosition() {
-                            return viewHolder.getAdapterPosition();
+                            return holder.getAdapterPosition();
                         }
 
                         @NonNull
@@ -281,12 +284,12 @@ public class MainActivity extends AppCompatActivity {
                             return taskViewHolder.getItemId();
                         }
                     };
-                } else if (viewHolder instanceof TaskListAdapter.DividerViewHolder) {
-                    final TaskListAdapter.DividerViewHolder taskViewHolder = (TaskListAdapter.DividerViewHolder) viewHolder;
+                } else if (holder instanceof TaskListAdapter.DividerViewHolder) {
+                    final TaskListAdapter.DividerViewHolder taskViewHolder = (TaskListAdapter.DividerViewHolder) holder;
                     return new ItemDetailsLookup.ItemDetails<Long>() {
                         @Override
                         public int getPosition() {
-                            return viewHolder.getAdapterPosition();
+                            return holder.getAdapterPosition();
                         }
 
                         @NonNull
@@ -299,9 +302,5 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
-    }
-
-    interface OnOK{
-        void onTextEntered(String text, long id);
     }
 }

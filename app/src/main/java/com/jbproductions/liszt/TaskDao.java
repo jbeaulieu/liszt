@@ -7,11 +7,10 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
-
 import java.util.List;
 
 /**
- * DAO to provide query functionality for Task Entities
+ * DAO to provide query functionality for Task Entities.
  */
 @Dao
 public interface TaskDao {
@@ -26,12 +25,13 @@ public interface TaskDao {
     void deleteTask(Task task);
 
     @Query("SELECT id, name, complete FROM tasks WHERE id = :id")
-    Task getTaskByID(long id);
+    Task getTaskById(long id);
 
     @Query("DELETE FROM tasks WHERE id = :id")
-    void deleteTaskByID(long id);
+    void deleteTaskById(long id);
 
-    @Query("SELECT id, name, complete FROM tasks WHERE complete=0 UNION ALL SELECT id, name, complete from tasks WHERE complete=1")
+    @Query("SELECT id, name, complete FROM tasks WHERE complete=0 UNION ALL "
+            + "SELECT id, name, complete from tasks WHERE complete=1")
     LiveData<List<Task>> getAllTasks();
 
     @Query("SELECT id, name, complete FROM tasks WHERE complete=0")
