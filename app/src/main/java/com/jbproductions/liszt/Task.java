@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
 import java.util.Date;
 
 /**
@@ -13,7 +14,6 @@ import java.util.Date;
 public class Task {
 
     @PrimaryKey(autoGenerate = true)
-    @NonNull
     @ColumnInfo(name = "id")
     private long id;
 
@@ -21,9 +21,14 @@ public class Task {
     @ColumnInfo(name = "name")
     private String mName;
 
-    @NonNull
     @ColumnInfo(name = "complete")
     private boolean mComplete;
+
+    @ColumnInfo(name = "date_due")
+    private Date dueDate;
+
+    @ColumnInfo(name = "notes")
+    private String notes;
 
     @ColumnInfo(name = "date_created", defaultValue = "CURRENT_TIMESTAMP")
     private Date mCreated;
@@ -36,9 +41,11 @@ public class Task {
      * @param name String name of task
      * @param complete Boolean reflecting whether a task has been marked as complete
      */
-    public Task(@NonNull String name, @NonNull boolean complete) {
+    public Task(@NonNull String name, boolean complete) {
         this.mName = name;
         this.mComplete = complete;
+        this.notes = null;
+        this.dueDate = null;
         this.mCreated = new Date();
         this.mModified = new Date();
     }
@@ -65,6 +72,22 @@ public class Task {
 
     public void setComplete(boolean complete) {
         this.mComplete = complete;
+    }
+
+    public Date getDueDate() {
+        return this.dueDate;
+    }
+
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public String getNotes() {
+        return this.notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public Date getCreated() {

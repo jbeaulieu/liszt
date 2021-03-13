@@ -33,7 +33,7 @@ public class DateTypeConverter {
 
     @TypeConverter
     public String toString(Date date) {
-        return sdf.format(date);
+        return date == null ? null : sdf.format(date);
     }
 
 }
