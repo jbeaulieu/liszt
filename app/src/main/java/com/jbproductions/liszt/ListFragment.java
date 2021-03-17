@@ -2,23 +2,25 @@ package com.jbproductions.liszt;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
+import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.fragment.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.Selection;
@@ -27,31 +29,83 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.util.Objects;
 
-/**
- * Main application activity.
- */
-public class MainActivity extends AppCompatActivity {
+public class ListFragment extends Fragment {
 
     SelectionTracker<Long> mSelectionTracker;
     TaskClickInterface mTaskClickInterface;
     private ImageButton editTaskButton;
+
     private ImageButton deleteTaskButton;
     private EditText newTaskText;
     private ViewModel mViewModel;
 
+    private boolean singleItemSelected;
+    private boolean multipleItemsSelected;
+
+    public static ListFragment newInstance() {
+        return new ListFragment();
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        /*editTaskButton = (ImageButton) findViewById(R.id.edit_task_button);
-        deleteTaskButton = (ImageButton) findViewById(R.id.delete_task_button);
+        setHasOptionsMenu(true);
+    }
 
-        newTaskText = (EditText) findViewById(R.id.newTaskText);
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_list, menu);
+    }
 
-        newTaskText.setOnEditorActionListener((view, actionId, event) -> {
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem deleteItem = menu.findItem(R.id.action_delete);
+        MenuItem editItem = menu.findItem(R.id.action_edit);
+        deleteItem.setVisible(singleItemSelected || multipleItemsSelected);
+        editItem.setVisible(singleItemSelected);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete: {
+                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+                for (Long itemId : selectedItems) {
+                    mViewModel.deleteTaskById(itemId);
+                }
+                mSelectionTracker.clearSelection();
+                return true;
+            }
+            case R.id.action_edit: {
+                // Navigate to details fragment
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_list, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
+
+        editTaskButton = (ImageButton) view.findViewById(R.id.edit_task_button);
+        deleteTaskButton = (ImageButton) view.findViewById(R.id.delete_task_button);
+
+        newTaskText = (EditText) view.findViewById(R.id.newTaskText);
+
+        newTaskText.setOnEditorActionListener((v, actionId, event) -> {
             boolean handled = false;
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 Task thisTask = new Task(newTaskText.getText().toString(), false);
@@ -64,18 +118,17 @@ public class MainActivity extends AppCompatActivity {
             return handled;
         });
 
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> {
+        FloatingActionButton fab = view.findViewById(R.id.fab);
+        fab.setOnClickListener(v -> {
             newTaskText.requestFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(newTaskText, InputMethodManager.SHOW_IMPLICIT);
         });
 
-        editTaskButton.setOnClickListener(view -> {
+        /*editTaskButton.setOnClickListener(v -> {
             Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
-            TextEditInterface getAlertDialogText = new TextEditInterface() {
+            MainActivity.TextEditInterface getAlertDialogText = new MainActivity.TextEditInterface() {
                 @Override
                 public void onTextEntered(String text, long id) {
                     Task thisTask;
@@ -86,10 +139,10 @@ public class MainActivity extends AppCompatActivity {
             };
 
             for (Long selectedItem : selectedItems) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                 builder.setTitle("New Task Name");
 
-                final EditText input = new EditText(MainActivity.this);
+                final EditText input = new EditText(v.getContext());
                 input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
                 builder.setView(input);
 
@@ -112,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        deleteTaskButton.setOnClickListener(view -> {
+        deleteTaskButton.setOnClickListener(v -> {
             Selection<Long> selectedItems = mSelectionTracker.getSelection();
             for (Long item : selectedItems) {
                 mViewModel.deleteTaskById(item);
@@ -120,19 +173,17 @@ public class MainActivity extends AppCompatActivity {
             mSelectionTracker.clearSelection();
         });*/
 
-        mViewModel = new ViewModelProvider(this).get(ViewModel.class);
-
-        /*mTaskClickInterface = task -> {
+        mTaskClickInterface = task -> {
             mViewModel.update(task);
             Log.d("HERE", "HERE");
         };
 
-        RecyclerView listRecyclerView = findViewById(R.id.list_recycler_view);
+        RecyclerView listRecyclerView = view.findViewById(R.id.list_recycler_view);
         final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
         listRecyclerView.setAdapter(adapter);
-        listRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        listRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        mViewModel.getAllTasks().observe(this, tasks -> {
+        mViewModel.getAllTasks().observe(getViewLifecycleOwner(), tasks -> {
             int dividerIndex = tasks.size();
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
@@ -169,8 +220,8 @@ public class MainActivity extends AppCompatActivity {
         mSelectionTracker = new SelectionTracker.Builder<Long>(
                 "selection-id",
                 listRecyclerView,
-                new TaskKeyProvider(listRecyclerView),
-                new TaskDetailsLookup(listRecyclerView),
+                new ListFragment.TaskKeyProvider(listRecyclerView),
+                new ListFragment.TaskDetailsLookup(listRecyclerView),
                 StorageStrategy.createLongStorage()
         ).withSelectionPredicate(noDividerSelection).build();
 
@@ -183,52 +234,28 @@ public class MainActivity extends AppCompatActivity {
                 int selectionSize = mSelectionTracker.getSelection().size();
                 switch (selectionSize) {
                     case 0:
-                        deleteTaskButton.setVisibility(View.GONE);
-                        editTaskButton.setVisibility(View.GONE);
+                        singleItemSelected = false;
+                        multipleItemsSelected = false;
+                        //deleteTaskButton.setVisibility(View.GONE);
+                        //editTaskButton.setVisibility(View.GONE);
                         break;
                     case 1:
-                        deleteTaskButton.setVisibility(View.VISIBLE);
-                        editTaskButton.setVisibility(View.VISIBLE);
+                        singleItemSelected = true;
+                        multipleItemsSelected = false;
+                        //deleteTaskButton.setVisibility(View.VISIBLE);
+                        //editTaskButton.setVisibility(View.VISIBLE);
                         break;
                     default:
-                        deleteTaskButton.setVisibility(View.VISIBLE);
-                        editTaskButton.setVisibility(View.GONE);
+                        singleItemSelected = false;
+                        multipleItemsSelected = true;
+                        //deleteTaskButton.setVisibility(View.VISIBLE);
+                        //editTaskButton.setVisibility(View.GONE);
                         break;
                 }
+                requireActivity().invalidateOptionsMenu();
             }
-        });*/
+        });
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-/*    @Override
-    public void onBackPressed() {
-        if (mSelectionTracker.hasSelection()) {
-            mSelectionTracker.clearSelection();
-        } else {
-            super.onBackPressed();
-        }
-    }*/
 
     interface TextEditInterface {
         void onTextEntered(String text, long id);
@@ -303,4 +330,12 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
+
+    /*    @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            mViewModel = new ViewModelProvider(this).get(ViewModel.class);
+            // TODO: Use the ViewModel
+        }*/
+
 }
