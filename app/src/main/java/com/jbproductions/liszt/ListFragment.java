@@ -2,25 +2,24 @@ package com.jbproductions.liszt;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import androidx.appcompat.app.AlertDialog;
-import androidx.lifecycle.ViewModelProvider;
-import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.Selection;
@@ -29,24 +28,18 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.util.Objects;
 
+/**
+ * Host fragment for viewing a list. This fragment provides the main view for the application.
+ */
 public class ListFragment extends Fragment {
 
     SelectionTracker<Long> mSelectionTracker;
     TaskClickInterface mTaskClickInterface;
-    private ImageButton editTaskButton;
-
-    private ImageButton deleteTaskButton;
     private EditText newTaskText;
     private ViewModel mViewModel;
-
     private boolean singleItemSelected;
     private boolean multipleItemsSelected;
-
-    public static ListFragment newInstance() {
-        return new ListFragment();
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,7 +73,40 @@ public class ListFragment extends Fragment {
                 return true;
             }
             case R.id.action_edit: {
-                // Navigate to details fragment
+                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+
+                TextEditInterface getAlertDialogText = (text, id) -> {
+                    Task thisTask;
+                    thisTask = mViewModel.getTaskById(id);
+                    thisTask.setName(text);
+                    mViewModel.update(thisTask);
+                };
+
+                for (Long selectedItem : selectedItems) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                    builder.setTitle("New Task Name");
+
+                    final EditText input = new EditText(getContext());
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+                    builder.setView(input);
+
+                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getAlertDialogText.onTextEntered(input.getText().toString(), selectedItem);
+                        }
+                    });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    builder.show();
+                    mSelectionTracker.clearSelection();
+                }
                 return true;
             }
             default:
@@ -100,9 +126,6 @@ public class ListFragment extends Fragment {
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
 
-        editTaskButton = (ImageButton) view.findViewById(R.id.edit_task_button);
-        deleteTaskButton = (ImageButton) view.findViewById(R.id.delete_task_button);
-
         newTaskText = (EditText) view.findViewById(R.id.newTaskText);
 
         newTaskText.setOnEditorActionListener((v, actionId, event) -> {
@@ -121,57 +144,10 @@ public class ListFragment extends Fragment {
         FloatingActionButton fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(v -> {
             newTaskText.requestFocus();
-            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm =
+                    (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(newTaskText, InputMethodManager.SHOW_IMPLICIT);
         });
-
-        /*editTaskButton.setOnClickListener(v -> {
-            Selection<Long> selectedItems = mSelectionTracker.getSelection();
-
-            MainActivity.TextEditInterface getAlertDialogText = new MainActivity.TextEditInterface() {
-                @Override
-                public void onTextEntered(String text, long id) {
-                    Task thisTask;
-                    thisTask = mViewModel.getTaskById(id);
-                    thisTask.setName(text);
-                    mViewModel.update(thisTask);
-                }
-            };
-
-            for (Long selectedItem : selectedItems) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setTitle("New Task Name");
-
-                final EditText input = new EditText(v.getContext());
-                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
-                builder.setView(input);
-
-                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        getAlertDialogText.onTextEntered(input.getText().toString(), selectedItem);
-                    }
-                });
-
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
-                mSelectionTracker.clearSelection();
-            }
-        });
-
-        deleteTaskButton.setOnClickListener(v -> {
-            Selection<Long> selectedItems = mSelectionTracker.getSelection();
-            for (Long item : selectedItems) {
-                mViewModel.deleteTaskById(item);
-            }
-            mSelectionTracker.clearSelection();
-        });*/
 
         mTaskClickInterface = task -> {
             mViewModel.update(task);
@@ -184,7 +160,6 @@ public class ListFragment extends Fragment {
         listRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mViewModel.getAllTasks().observe(getViewLifecycleOwner(), tasks -> {
-            int dividerIndex = tasks.size();
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
                 if (task.getId() == -1) {
@@ -217,7 +192,7 @@ public class ListFragment extends Fragment {
             }
         };
 
-        mSelectionTracker = new SelectionTracker.Builder<Long>(
+        mSelectionTracker = new SelectionTracker.Builder<>(
                 "selection-id",
                 listRecyclerView,
                 new ListFragment.TaskKeyProvider(listRecyclerView),
@@ -236,20 +211,14 @@ public class ListFragment extends Fragment {
                     case 0:
                         singleItemSelected = false;
                         multipleItemsSelected = false;
-                        //deleteTaskButton.setVisibility(View.GONE);
-                        //editTaskButton.setVisibility(View.GONE);
                         break;
                     case 1:
                         singleItemSelected = true;
                         multipleItemsSelected = false;
-                        //deleteTaskButton.setVisibility(View.VISIBLE);
-                        //editTaskButton.setVisibility(View.VISIBLE);
                         break;
                     default:
                         singleItemSelected = false;
                         multipleItemsSelected = true;
-                        //deleteTaskButton.setVisibility(View.VISIBLE);
-                        //editTaskButton.setVisibility(View.GONE);
                         break;
                 }
                 requireActivity().invalidateOptionsMenu();
