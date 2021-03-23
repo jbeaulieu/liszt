@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.Selection;
@@ -73,7 +74,7 @@ public class ListFragment extends Fragment {
                 return true;
             }
             case R.id.action_edit: {
-                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+                /*Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
                 TextEditInterface getAlertDialogText = (text, id) -> {
                     Task thisTask;
@@ -105,12 +106,14 @@ public class ListFragment extends Fragment {
                     });
 
                     builder.show();
-                    mSelectionTracker.clearSelection();
-                }
+                    mSelectionTracker.clearSelection();*/
+                mSelectionTracker.clearSelection();
+                NavHostFragment.findNavController(ListFragment.this).navigate(R.id.action_ListFragment_to_DetailsFragment);
                 return true;
             }
-            default:
+            default: {
                 return super.onOptionsItemSelected(item);
+            }
         }
     }
 

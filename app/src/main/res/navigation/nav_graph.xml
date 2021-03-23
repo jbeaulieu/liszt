@@ -3,26 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/ListFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
+        android:id="@+id/ListFragment"
         android:name="com.jbproductions.liszt.ListFragment"
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_list">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_ListFragment_to_DetailsFragment"
+            app:destination="@id/DetailsFragment" />
     </fragment>
+
     <fragment
-        android:id="@+id/SecondFragment"
+        android:id="@+id/DetailsFragment"
         android:name="com.jbproductions.liszt.DetailsFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_details">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_DetailsFragment_to_ListFragment"
+            app:destination="@id/ListFragment" />
     </fragment>
 </navigation>
