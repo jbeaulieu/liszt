@@ -18,6 +18,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
@@ -28,6 +29,7 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.TransitionInflater;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
@@ -107,6 +109,13 @@ public class ListFragment extends Fragment {
 
                     builder.show();
                     mSelectionTracker.clearSelection();*/
+                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+
+                if (selectedItems.size() == 1) {
+                    for (Long selectedItem : selectedItems) {
+                        mViewModel.selectedTask = mViewModel.getTaskById(selectedItem);
+                    }
+                }
                 mSelectionTracker.clearSelection();
                 NavHostFragment.findNavController(ListFragment.this).navigate(R.id.action_ListFragment_to_DetailsFragment);
                 return true;
@@ -120,6 +129,8 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle("Liszt");
         return inflater.inflate(R.layout.fragment_list, container, false);
     }
 

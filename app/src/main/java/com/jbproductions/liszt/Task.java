@@ -25,6 +25,12 @@ public class Task {
     @ColumnInfo(name = "complete")
     private boolean mComplete;
 
+    @ColumnInfo(name = "date_due")
+    private Date dueDate;
+
+    @ColumnInfo(name = "note")
+    private String notes;
+
     @ColumnInfo(name = "date_created", defaultValue = "CURRENT_TIMESTAMP")
     private Date mCreated;
 
@@ -39,6 +45,8 @@ public class Task {
     public Task(@NonNull String name, @NonNull boolean complete) {
         this.mName = name;
         this.mComplete = complete;
+        this.dueDate = new Date();
+        this.notes = "";
         this.mCreated = new Date();
         this.mModified = new Date();
     }
@@ -59,12 +67,28 @@ public class Task {
         this.mName = name;
     }
 
+    public Date getDueDate() {
+        return this.dueDate;
+    }
+
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
+
     public boolean getComplete() {
         return this.mComplete;
     }
 
     public void setComplete(boolean complete) {
         this.mComplete = complete;
+    }
+
+    public String getNotes() {
+        return this.notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public Date getCreated() {

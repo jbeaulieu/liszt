@@ -24,14 +24,14 @@ public interface TaskDao {
     @Delete
     void deleteTask(Task task);
 
-    @Query("SELECT id, name, complete FROM tasks WHERE id = :id")
+    @Query("SELECT * FROM tasks WHERE id = :id")
     Task getTaskById(long id);
 
     @Query("DELETE FROM tasks WHERE id = :id")
     void deleteTaskById(long id);
 
-    @Query("SELECT id, name, complete FROM tasks WHERE complete=0 UNION ALL "
-            + "SELECT id, name, complete from tasks WHERE complete=1")
+    @Query("SELECT id, name, complete, note FROM tasks WHERE complete=0 UNION ALL "
+            + "SELECT id, name, complete, note from tasks WHERE complete=1")
     LiveData<List<Task>> getAllTasks();
 
     @Query("SELECT id, name, complete FROM tasks WHERE complete=0")

@@ -15,6 +15,8 @@ public class ViewModel extends AndroidViewModel {
     private final LiveData<List<Task>> completeTasks;
     private final DataRepository dataRepository;
 
+    Task selectedTask;
+
     /**
      * Default constructor for application ViewModel.
      * @param application Application to base ViewModel instance around
