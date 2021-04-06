@@ -3,6 +3,7 @@ package com.jbproductions.liszt;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -33,6 +35,7 @@ public class DetailsFragment extends Fragment {
     private EditText taskNameEditText;
     private CheckBox taskStatusCheckBox;
     private TextView dueDateTextView;
+    private ImageButton removeDueDateButton;
     private EditText taskNotesEditText;
     private ViewModel viewModel;
 
@@ -50,7 +53,8 @@ public class DetailsFragment extends Fragment {
                 // Check if there are unsaved changes
                 if (taskNameEditText.getText().toString().equals(referenceTask.getName())
                         && taskStatusCheckBox.isChecked() == referenceTask.getComplete()
-                        && viewModel.selectedTask.getDueDate().toString().equals(referenceTask.getDueDate().toString())
+                        && viewModel.selectedTask.getDueDate() == null ? referenceTask.getDueDate() == null
+                            : viewModel.selectedTask.getDueDate().equals(referenceTask.getDueDate())
                         && taskNotesEditText.getText().toString().equals(referenceTask.getNotes())) {
                     // No changes have been made, go back
                     NavHostFragment.findNavController(DetailsFragment.this).popBackStack();
@@ -79,6 +83,7 @@ public class DetailsFragment extends Fragment {
         taskStatusCheckBox = view.findViewById(R.id.task_checkbox);
         dueDateTextView = view.findViewById(R.id.due_date_text);
         taskNotesEditText = view.findViewById(R.id.task_notes_text);
+        removeDueDateButton = view.findViewById(R.id.remove_due_date_button);
 
         // Set the ActionBar title and show the up/back button
         ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle("Edit");
@@ -97,12 +102,21 @@ public class DetailsFragment extends Fragment {
         // Set the fragments fields based on the task's details
         taskNameEditText.setText(viewModel.selectedTask.getName());
         taskStatusCheckBox.setChecked(viewModel.selectedTask.getComplete());
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(viewModel.selectedTask.getDueDate());
-        String monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-        String dateText = monthName + " " + cal.get(Calendar.DAY_OF_MONTH) + ", " + cal.get(Calendar.YEAR);
-        dueDateTextView.setText(dateText);
+        if (!(viewModel.selectedTask.getDueDate() == null)) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(viewModel.selectedTask.getDueDate());
+            String monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            String dateText = monthName + " " + cal.get(Calendar.DAY_OF_MONTH) + ", " + cal.get(Calendar.YEAR);
+            dueDateTextView.setText(dateText);
+            removeDueDateButton.setVisibility(View.VISIBLE);
+        }
         taskNotesEditText.setText(viewModel.selectedTask.getNotes());
+
+        removeDueDateButton.setOnClickListener(v -> {
+            viewModel.selectedTask.setDueDate(null);
+            dueDateTextView.setText("Set Due Date");
+            removeDueDateButton.setVisibility(View.GONE);
+        });
 
         // Set listeners on the name field to maintain focus and show/hide the cursor & keyboard appropriately
         taskNameEditText.setOnClickListener(v -> taskNameEditText.setCursorVisible(true));
@@ -151,6 +165,7 @@ public class DetailsFragment extends Fragment {
             String monthName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
             String dueDate = monthName + " " + day + ", " + year;
             dueDateTextView.setText(dueDate);
+            removeDueDateButton.setVisibility(View.VISIBLE);
             viewModel.selectedTask.setDueDate(calendar.getTime());
         }, currentYear, currentMonth, currentDay);
 

@@ -21,9 +21,8 @@ public class DateTypeConverter {
      */
     @TypeConverter
     public Date toDate(String value) {
-        Log.d("TypeConverter Use:", value);
         try {
-            return sdf.parse(value);
+            return value == null ? null : sdf.parse(value);
         } catch (ParseException e) {
             e.printStackTrace();
         }

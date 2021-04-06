@@ -45,7 +45,7 @@ public class Task {
     public Task(@NonNull String name, @NonNull boolean complete) {
         this.mName = name;
         this.mComplete = complete;
-        this.dueDate = new Date();
+        this.dueDate = null;
         this.notes = "";
         this.mCreated = new Date();
         this.mModified = new Date();
