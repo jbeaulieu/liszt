@@ -7,9 +7,13 @@
     android:background="@color/eggshell"
     tools:context=".DetailsFragment">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
@@ -55,7 +59,7 @@
                         android:id="@+id/task_name_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Version"
+                        android:hint="@string/name_label_hint"
                         android:background="@color/white"
                         android:inputType="text"
                         android:imeOptions="actionSend"/>
@@ -120,7 +124,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:freezesText="true"
-                        android:text="Set Due Date" />
+                        android:text="@string/due_date_label_default" />
 
                 </LinearLayout>
 
@@ -177,7 +181,9 @@
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_notes_24"/>
 
-                <LinearLayout
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/task_notes_layout"
+                    android:paddingLeft="0dp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="32dp"
@@ -188,23 +194,30 @@
                     android:layout_marginRight="@dimen/baseline"
                     android:layout_marginStart="@dimen/baseline"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="500">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/task_notes_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Notes"
+                        android:hint="@string/notes_label_hint"
                         android:background="@color/white"
-                        android:inputType="textMultiLine" />
+                        android:inputType="textMultiLine"
+                        android:maxLength="500"/>
 
-                </LinearLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>
+
+    </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
