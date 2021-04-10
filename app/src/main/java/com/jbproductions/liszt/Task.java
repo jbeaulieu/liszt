@@ -107,7 +107,36 @@ public class Task {
         this.mModified = modified;
     }
 
+    /**
+     * Compares this Task against another Task for equality, indicating that the Tasks have identical properties.
+     * respect to their properties.
+     * @param otherTask A Task object to compare against
+     * @return boolean indicating if the two Tasks are equal
+     */
     public boolean equals(Task otherTask) {
-        return id == otherTask.getId() && mName.equals(otherTask.mName) && mComplete == otherTask.mComplete;
+        return id == otherTask.getId()
+                && mName.equals(otherTask.mName)
+                && mComplete == otherTask.mComplete
+                && dueDateEquals(otherTask.dueDate)
+                && notes.equals(otherTask.notes);
+    }
+
+    /**
+     * Helper function to compare a Task object's due date to another date for equality. This method is null-safe for
+     * both the Task's due date and the Date argument supplied. This allows for direct comparison to another Task's due
+     * date by supplying the other Task's getDueDate() method as the argument for this method, even in the case when one
+     * or both due dates are null.
+     * @param date Date object to compare the task's due date against. May be null.
+     * @return boolean indicating if the two dates are equal
+     */
+    public boolean dueDateEquals(Date date) {
+        if (this.dueDate == null ^ date == null) {
+            // Check if this Task's due date XOR the parameter date are null (not both)
+            return false;
+        } else if (this.dueDate != null && date != null) {
+            // If neither date is null, check that the two are equal via Date's built-in equals function
+            return this.dueDate.equals(date);
+        }
+        return true;
     }
 }

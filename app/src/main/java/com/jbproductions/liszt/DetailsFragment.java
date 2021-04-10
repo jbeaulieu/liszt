@@ -47,12 +47,12 @@ public class DetailsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Register a callback to intercept back button presses and confirm that the user wants to discard changes
+        // Register a callback to intercept back button presses and check for unsaved changes to the Task
         OnBackPressedCallback checkUnsavedChangesCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 if (hasUnsavedChanges()) {
-                    // There are unsaved changes, prompt the user before discarding
+                    // Prompt the user before discarding changes
                     AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity())
                             .setTitle(R.string.discard_changes_confirmation)
                             .setPositiveButton(R.string.yes, (dialogInterface, i) -> {
@@ -173,6 +173,7 @@ public class DetailsFragment extends Fragment {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (view, year, month, day) -> {
             calendar.set(year, month, day, 0, 0, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
             String monthName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
             String dueDate = monthName + " " + day + ", " + year;
             dueDateTextView.setText(dueDate);
@@ -184,7 +185,7 @@ public class DetailsFragment extends Fragment {
     }
 
     /**
-     * Function to check if there are unsaved changes to the task.
+     * Helper function to check if there are unsaved changes to the task.
      * Currently only used in the OnBackPressedCallback that is set up in DetailFragment's OnCreate(). This check has
      * been isolated to a separate function to maintain readability.
      * @return boolean value indicating the presence of unsaved changes.
@@ -192,20 +193,9 @@ public class DetailsFragment extends Fragment {
     boolean hasUnsavedChanges() {
 
         // If any of the name, status, or notes values differ between the VM and ref. task, there are unsaved changes
-        if (!(taskNameEditText.getText().toString().equals(referenceTask.getName())
+        return !(taskNameEditText.getText().toString().equals(referenceTask.getName())
                 && taskStatusCheckBox.isChecked() == referenceTask.getComplete()
-                && taskNotesEditText.getText().toString().equals(referenceTask.getNotes()))) {
-            return true;
-        }
-
-        if (viewModel.selectedTask.getDueDate() == null ^ referenceTask.getDueDate() == null) {
-            // If the viewModel XOR reference task due dates are null (not both), then we have unsaved changes
-            return true;
-        } else if (viewModel.selectedTask.getDueDate() != null && viewModel.selectedTask.getDueDate() != null) {
-            // If neither due date is null, check that the two are equal and return the inverse (equality = no changes)
-            return !(viewModel.selectedTask.getDueDate().equals(referenceTask.getDueDate()));
-        }
-
-        return false;
+                && viewModel.selectedTask.dueDateEquals(referenceTask.getDueDate())
+                && taskNotesEditText.getText().toString().equals(referenceTask.getNotes()));
     }
 }

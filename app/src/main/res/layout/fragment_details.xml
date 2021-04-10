@@ -183,16 +183,15 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/task_notes_layout"
-                    android:paddingLeft="0dp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="32dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="center_vertical"
                     android:layout_marginEnd="@dimen/baseline"
-                    android:layout_marginLeft="@dimen/baseline"
+                    android:layout_marginLeft="5dp"
                     android:layout_marginRight="@dimen/baseline"
-                    android:layout_marginStart="@dimen/baseline"
+                    android:layout_marginStart="5dp"
                     android:layout_weight="1"
                     android:orientation="vertical"
                     app:boxStrokeWidth="0dp"
