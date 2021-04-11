@@ -12,7 +12,8 @@
     <string name="discard_changes_confirmation">Discard changes?</string>
     <!-- DetailsFragment layout strings -->
     <string name="name_label_hint">Name</string>
-    <string name="due_date_label_default">Set Due Date</string>
+    <string name="due_date_label_default">Set due date</string>
+    <string name="due_date_string">Due %1$s</string>
     <string name="notes_label_hint">Notes</string>
 
     <!-- General strings -->

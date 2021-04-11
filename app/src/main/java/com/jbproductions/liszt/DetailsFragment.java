@@ -95,11 +95,8 @@ public class DetailsFragment extends Fragment {
         taskNameEditText.setText(viewModel.selectedTask.getName());
         taskStatusCheckBox.setChecked(viewModel.selectedTask.getComplete());
         if (!(viewModel.selectedTask.getDueDate() == null)) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(viewModel.selectedTask.getDueDate());
-            String monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-            String dateText = monthName + " " + cal.get(Calendar.DAY_OF_MONTH) + ", " + cal.get(Calendar.YEAR);
-            dueDateTextView.setText(dateText);
+            dueDateTextView.setText(getResources().getString(R.string.due_date_string,
+                    getReadableDate(viewModel.selectedTask.getDueDate())));
             removeDueDateButton.setVisibility(View.VISIBLE);
         }
         taskNotesEditText.setText(viewModel.selectedTask.getNotes());
@@ -174,9 +171,10 @@ public class DetailsFragment extends Fragment {
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (view, year, month, day) -> {
             calendar.set(year, month, day, 0, 0, 0);
             calendar.set(Calendar.MILLISECOND, 0);
-            String monthName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-            String dueDate = monthName + " " + day + ", " + year;
-            dueDateTextView.setText(dueDate);
+
+            String dueDateText = "Due " + getReadableDate(calendar.getTime());
+
+            dueDateTextView.setText(dueDateText);
             removeDueDateButton.setVisibility(View.VISIBLE);
             viewModel.selectedTask.setDueDate(calendar.getTime());
         }, currentYear, currentMonth, currentDay);
@@ -197,5 +195,43 @@ public class DetailsFragment extends Fragment {
                 && taskStatusCheckBox.isChecked() == referenceTask.getComplete()
                 && viewModel.selectedTask.dueDateEquals(referenceTask.getDueDate())
                 && taskNotesEditText.getText().toString().equals(referenceTask.getNotes()));
+    }
+
+
+    /**
+     * Convenience function to get a human-readable String for a given date. If the supplied date is within the next
+     * week, the function will return a value such as "Today", "Tomorrow", or the weekday of the date. Otherwise, it
+     * will return a String of "Month, Day", with the year appended if the date supplied is in a different year.
+     * @param date A Date object off of which to base the response String
+     * @return A String with a more readable version of the date
+     */
+    public static String getReadableDate(Date date) {
+
+        final Calendar dueDate = Calendar.getInstance();
+        dueDate.setTime(date);
+
+        int daysToDueDate = dueDate.get(Calendar.DAY_OF_YEAR) - Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+        String dueDateText = "";
+
+        if (daysToDueDate > 1 && daysToDueDate <= 7) {
+            dueDateText += dueDate.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+        } else {
+            switch (daysToDueDate) {
+                case 0:
+                    dueDateText += "Today";
+                    break;
+                case 1:
+                    dueDateText += "Tomorrow";
+                    break;
+                default:
+                    String monthName = dueDate.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+                    dueDateText += monthName + " " + dueDate.get(Calendar.DATE);;
+                    if (dueDate.get(Calendar.YEAR) != Calendar.getInstance().get(Calendar.YEAR)) {
+                        dueDateText += ", " + dueDate.get(Calendar.YEAR);
+                    }
+            }
+        }
+
+        return dueDateText;
     }
 }
