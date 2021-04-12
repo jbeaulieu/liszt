@@ -18,8 +18,10 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.Selection;
@@ -27,6 +29,7 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.TransitionInflater;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
@@ -73,7 +76,7 @@ public class ListFragment extends Fragment {
                 return true;
             }
             case R.id.action_edit: {
-                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+                /*Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
                 TextEditInterface getAlertDialogText = (text, id) -> {
                     Task thisTask;
@@ -105,18 +108,29 @@ public class ListFragment extends Fragment {
                     });
 
                     builder.show();
-                    mSelectionTracker.clearSelection();
+                    mSelectionTracker.clearSelection();*/
+                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+
+                if (selectedItems.size() == 1) {
+                    for (Long selectedItem : selectedItems) {
+                        mViewModel.selectedTask = mViewModel.getTaskById(selectedItem);
+                    }
                 }
+                mSelectionTracker.clearSelection();
+                NavHostFragment.findNavController(ListFragment.this).navigate(R.id.action_ListFragment_to_DetailsFragment);
                 return true;
             }
-            default:
+            default: {
                 return super.onOptionsItemSelected(item);
+            }
         }
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle("Liszt");
         return inflater.inflate(R.layout.fragment_list, container, false);
     }
 

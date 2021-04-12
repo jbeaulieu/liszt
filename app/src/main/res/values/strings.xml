@@ -2,16 +2,21 @@
     <string name="app_name">Liszt</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="item_fragment_label">First Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="list_fragment_label">List Fragment</string>
+    <string name="details_fragment_label">Details Fragment</string>
 
     <string name="completed_tasks_header">COMPLETED TASKS</string>
+
+    <!-- DetailsFragment strings -->
+    <string name="details_fragment_title">Edit</string>
+    <string name="discard_changes_confirmation">Discard changes?</string>
+    <!-- DetailsFragment layout strings -->
+    <string name="name_label_hint">Name</string>
+    <string name="due_date_label_default">Set due date</string>
+    <string name="due_date_string">Due %1$s</string>
+    <string name="notes_label_hint">Notes</string>
+
+    <!-- General strings -->
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

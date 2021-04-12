@@ -86,7 +86,9 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
         @Override
         public boolean areItemsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
-            return oldTask.getId() == newTask.getId() && oldTask.getName().equals(newTask.getName());
+            return oldTask.getId() == newTask.getId()
+                    && oldTask.getName().equals(newTask.getName())
+                    && oldTask.dueDateEquals(newTask.getDueDate());
         }
 
         @Override
@@ -99,7 +101,8 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
         //// Member Attributes
         private final LinearLayout taskLayout;
-        private final TextView textView;
+        private final TextView taskCardTitle;
+        private final TextView taskCardSubtitle;
         private final CheckBox checkBox;
 
         //// Constructor Methods
@@ -110,18 +113,26 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
             super(view);
 
             // Initialize member attributes for each view in the Task fragment.
-            taskLayout = (LinearLayout) view.findViewById(R.id.task_layout);
-            textView = (TextView) view.findViewById(R.id.task_text);
-            checkBox = (CheckBox) view.findViewById(R.id.task_checkbox);
+            taskLayout = view.findViewById(R.id.task_layout);
+            taskCardTitle = view.findViewById(R.id.task_text);
+            taskCardSubtitle = view.findViewById(R.id.task_subtext);
+            checkBox = view.findViewById(R.id.task_checkbox);
         }
 
         private void bind(Task task, boolean isSelected, TaskClickInterface clickInterface) {
-            textView.setText(task.getName());
+            taskCardTitle.setText(task.getName());
             checkBox.setChecked(task.getComplete());
             taskLayout.setActivated(isSelected);
 
+            if (task.getDueDate() == null) {
+                taskCardSubtitle.setVisibility(View.GONE);
+            } else {
+                taskCardSubtitle.setVisibility(View.VISIBLE);
+                taskCardSubtitle.setText(DetailsFragment.getReadableDate(task.getDueDate()));
+            }
+
             checkBox.setOnClickListener(view -> {
-                String taskName = textView.getText().toString();
+                String taskName = taskCardTitle.getText().toString();
                 boolean status = checkBox.isChecked();
                 task.setComplete(status);
 
