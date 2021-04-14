@@ -1,9 +1,7 @@
 package com.jbproductions.liszt;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,7 +15,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -29,7 +26,6 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.TransitionInflater;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
@@ -53,6 +49,7 @@ public class ListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.menu_list, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -68,6 +65,7 @@ public class ListFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete: {
+
                 Selection<Long> selectedItems = mSelectionTracker.getSelection();
                 for (Long itemId : selectedItems) {
                     mViewModel.deleteTaskById(itemId);
@@ -76,39 +74,7 @@ public class ListFragment extends Fragment {
                 return true;
             }
             case R.id.action_edit: {
-                /*Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
-                TextEditInterface getAlertDialogText = (text, id) -> {
-                    Task thisTask;
-                    thisTask = mViewModel.getTaskById(id);
-                    thisTask.setName(text);
-                    mViewModel.update(thisTask);
-                };
-
-                for (Long selectedItem : selectedItems) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                    builder.setTitle("New Task Name");
-
-                    final EditText input = new EditText(getContext());
-                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
-                    builder.setView(input);
-
-                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            getAlertDialogText.onTextEntered(input.getText().toString(), selectedItem);
-                        }
-                    });
-
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    builder.show();
-                    mSelectionTracker.clearSelection();*/
                 Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
                 if (selectedItems.size() == 1) {
@@ -117,7 +83,9 @@ public class ListFragment extends Fragment {
                     }
                 }
                 mSelectionTracker.clearSelection();
-                NavHostFragment.findNavController(ListFragment.this).navigate(R.id.action_ListFragment_to_DetailsFragment);
+                NavHostFragment.findNavController(ListFragment.this)
+                        .navigate(R.id.action_ListFragment_to_DetailsFragment);
+                mViewModel.setSortKey(0);
                 return true;
             }
             default: {
@@ -148,7 +116,6 @@ public class ListFragment extends Fragment {
                 Task thisTask = new Task(newTaskText.getText().toString(), false);
                 mViewModel.insert(thisTask);
                 newTaskText.getText().clear();
-                Log.d("myTag", "Keyboard Enter Captured: " + newTaskText.getText());
                 newTaskText.requestFocus();
                 handled = true;
             }
@@ -313,12 +280,4 @@ public class ListFragment extends Fragment {
             return null;
         }
     }
-
-    /*    @Override
-        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
-            mViewModel = new ViewModelProvider(this).get(ViewModel.class);
-            // TODO: Use the ViewModel
-        }*/
-
 }
