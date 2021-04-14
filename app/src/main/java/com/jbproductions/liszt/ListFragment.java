@@ -85,7 +85,6 @@ public class ListFragment extends Fragment {
                 mSelectionTracker.clearSelection();
                 NavHostFragment.findNavController(ListFragment.this)
                         .navigate(R.id.action_ListFragment_to_DetailsFragment);
-                mViewModel.setSortKey(0);
                 return true;
             }
             default: {
