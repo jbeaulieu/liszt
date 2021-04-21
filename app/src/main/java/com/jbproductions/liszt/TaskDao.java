@@ -30,12 +30,10 @@ public interface TaskDao {
     @Query("DELETE FROM tasks WHERE id = :id")
     void deleteTaskById(long id);
 
-    @Query("SELECT * FROM tasks WHERE complete=0 UNION ALL SELECT * from tasks WHERE complete=1")
-    LiveData<List<Task>> getAllTasks();
-
-    @Query("SELECT id, name, complete FROM tasks WHERE complete=0")
-    LiveData<List<Task>> getOpenTasks();
-
-    @Query("SELECT id, name, complete FROM tasks WHERE complete=1")
-    LiveData<List<Task>> getCompleteTasks();
+    @Query("SELECT * FROM tasks ORDER BY complete, "
+            + "CASE WHEN :sort LIKE 0 THEN name "
+            + "WHEN :sort LIKE 1 THEN date_due "
+            + "WHEN :sort LIKE 2 THEN id "
+            + "ELSE id END")
+    LiveData<List<Task>> getAllTasks(int sort);
 }

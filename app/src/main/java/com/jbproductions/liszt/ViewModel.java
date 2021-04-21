@@ -1,8 +1,11 @@
 package com.jbproductions.liszt;
 
 import android.app.Application;
+import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.SavedStateHandle;
+import androidx.lifecycle.Transformations;
 import java.util.List;
 
 /**
@@ -10,10 +13,11 @@ import java.util.List;
  */
 public class ViewModel extends AndroidViewModel {
 
+    private static final String SORT_KEY = "SORT";
+
     private final LiveData<List<Task>> taskList;
-    private final LiveData<List<Task>> openTasks;
-    private final LiveData<List<Task>> completeTasks;
     private final DataRepository dataRepository;
+    private final SavedStateHandle savedStateHandle;
 
     Task selectedTask;
 
@@ -21,24 +25,22 @@ public class ViewModel extends AndroidViewModel {
      * Default constructor for application ViewModel.
      * @param application Application to base ViewModel instance around
      */
-    public ViewModel(Application application) {
+    public ViewModel(Application application, SavedStateHandle handle) {
         super(application);
+        savedStateHandle = handle;
         dataRepository = new DataRepository(application);
-        taskList = dataRepository.getListTasks();
-        openTasks = dataRepository.getOpenTasks();
-        completeTasks = dataRepository.getCompleteTasks();
+        taskList = Transformations.switchMap(
+                savedStateHandle.getLiveData(SORT_KEY, null),
+                (Function<Integer, LiveData<List<Task>>>) dataRepository::getListTasks
+        );
+    }
+
+    public void setSortKey(int key) {
+        savedStateHandle.set(SORT_KEY, key);
     }
 
     LiveData<List<Task>> getAllTasks() {
         return taskList;
-    }
-
-    LiveData<List<Task>> getOpenTasks() {
-        return openTasks;
-    }
-
-    LiveData<List<Task>> getCompleteTasks() {
-        return completeTasks;
     }
 
     // Create wrapper methods so that the implementation is segmented from the UI
