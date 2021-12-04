@@ -2,6 +2,7 @@ package com.jbproductions.liszt;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,11 +24,9 @@ import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.Selection;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.util.Collections;
 
 /**
  * Host fragment for viewing a list. This fragment provides the main view for the application.
@@ -39,28 +38,7 @@ public class ListFragment extends Fragment {
     static final int SORT_DATE_CREATED = 2;
 
     SelectionTracker<Long> mSelectionTracker;
-    // TODO rename away from click and to check/checked/complete/status
     TaskClickInterface mTaskClickInterface;
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
-                              @NonNull RecyclerView.ViewHolder target) {
-            int fromPosition = viewHolder.getAdapterPosition();
-            int toPosition = target.getAdapterPosition();
-
-            Collections.swap(mViewModel.getAllTasks().getValue(), fromPosition, toPosition);
-
-            recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
-
-            return false;
-        }
-
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-        }
-    };
     private EditText newTaskText;
     private ViewModel mViewModel;
     private boolean singleItemSelected;
@@ -103,8 +81,7 @@ public class ListFragment extends Fragment {
 
                 Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
-                // TODO should this check use the singleItemSelected variable?
-                if (singleItemSelected) {
+                if (selectedItems.size() == 1) {
                     for (Long selectedItem : selectedItems) {
                         mViewModel.selectedTask = mViewModel.getTaskById(selectedItem);
                     }
@@ -174,7 +151,7 @@ public class ListFragment extends Fragment {
 
         mTaskClickInterface = task -> {
             mViewModel.update(task);
-            // Log.d("HERE", "HERE");
+            Log.d("HERE", "HERE");
         };
 
         RecyclerView listRecyclerView = view.findViewById(R.id.list_recycler_view);
@@ -247,8 +224,6 @@ public class ListFragment extends Fragment {
                 requireActivity().invalidateOptionsMenu();
             }
         });
-         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
-         itemTouchHelper.attachToRecyclerView(listRecyclerView);
     }
 
     interface TextEditInterface {
@@ -324,5 +299,4 @@ public class ListFragment extends Fragment {
             return null;
         }
     }
-
 }
