@@ -36,4 +36,10 @@ public interface TaskDao {
             + "WHEN :sort LIKE 2 THEN id "
             + "ELSE id END")
     LiveData<List<Task>> getAllTasks(int sort);
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void createList(TaskList list);
+
+    @Query("SELECT * FROM lists WHERE id = :id")
+    TaskList getListById(long id);
 }

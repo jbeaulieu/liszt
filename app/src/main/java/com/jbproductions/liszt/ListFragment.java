@@ -33,10 +33,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
  */
 public class ListFragment extends Fragment {
 
-    static final int SORT_ALPHA = 0;
-    static final int SORT_DATE_DUE = 1;
-    static final int SORT_DATE_CREATED = 2;
-
     SelectionTracker<Long> mSelectionTracker;
     TaskClickInterface mTaskClickInterface;
     private EditText newTaskText;
@@ -93,17 +89,17 @@ public class ListFragment extends Fragment {
             }
             case R.id.sort_alpha: {
 
-                mViewModel.setSortKey(SORT_ALPHA);
+                mViewModel.setSortKey(TaskList.SORT_ALPHA);
                 return true;
             }
             case R.id.sort_due: {
 
-                mViewModel.setSortKey(SORT_DATE_DUE);
+                mViewModel.setSortKey(TaskList.SORT_DATE_DUE);
                 return true;
             }
             case R.id.sort_default: {
 
-                mViewModel.setSortKey(SORT_DATE_CREATED);
+                mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
                 return true;
             }
             default: {
@@ -125,7 +121,7 @@ public class ListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
-        mViewModel.setSortKey(SORT_DATE_CREATED);
+        mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
 
         newTaskText = (EditText) view.findViewById(R.id.newTaskText);
 

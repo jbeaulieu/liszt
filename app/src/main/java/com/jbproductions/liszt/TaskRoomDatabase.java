@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 /**
  * RoomDatabase class to work with TaskDao and perform asynchronous queries.
  */
-@Database(entities = {Task.class}, version = 1, exportSchema = false)
+@Database(entities = {Task.class, TaskList.class}, version = 1, exportSchema = false)
 @TypeConverters(DateTypeConverter.class)
 public abstract class TaskRoomDatabase extends RoomDatabase {
 
@@ -38,6 +38,9 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
                 Task task2 = new Task("Oranges", false);
                 dao.insert(task1);
                 dao.insert(task2);
+
+                TaskList inbox = new TaskList("inbox");
+                dao.createList(inbox);
             });
         }
     };
