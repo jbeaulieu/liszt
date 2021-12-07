@@ -32,15 +32,16 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
             super.onCreate(db);
 
             databaseWriteExecutor.execute(() -> {
-                TaskDao dao = INSTANCE.taskDao();
+                TaskDao taskDao = INSTANCE.taskDao();
+                ListDao listDao = INSTANCE.listDao();
 
                 Task task1 = new Task("Apples", false);
                 Task task2 = new Task("Oranges", false);
-                dao.insert(task1);
-                dao.insert(task2);
+                taskDao.insert(task1);
+                taskDao.insert(task2);
 
                 TaskList inbox = new TaskList("inbox");
-                dao.createList(inbox);
+                listDao.insert(inbox);
             });
         }
     };
@@ -59,4 +60,6 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
     }
 
     public abstract TaskDao taskDao();
+
+    public abstract ListDao listDao();
 }

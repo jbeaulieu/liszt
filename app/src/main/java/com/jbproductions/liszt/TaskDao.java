@@ -27,6 +27,9 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id = :id")
     Task getTaskById(long id);
 
+    @Query("SELECT * FROM tasks WHERE parent_id = id")
+    LiveData<List<Task>> getTasksForList(long id);
+
     @Query("DELETE FROM tasks WHERE id = :id")
     void deleteTaskById(long id);
 
@@ -36,10 +39,4 @@ public interface TaskDao {
             + "WHEN :sort LIKE 2 THEN id "
             + "ELSE id END")
     LiveData<List<Task>> getAllTasks(int sort);
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void createList(TaskList list);
-
-    @Query("SELECT * FROM lists WHERE id = :id")
-    TaskList getListById(long id);
 }

@@ -17,6 +17,9 @@ public class Task {
     @ColumnInfo(name = "id")
     private long id;
 
+    @ColumnInfo(name = "parent_id")
+    private long parentId;
+
     @NonNull
     @ColumnInfo(name = "name")
     private String mName;
@@ -37,9 +40,6 @@ public class Task {
     @ColumnInfo(name = "date_modified", defaultValue = "CURRENT_TIMESTAMP")
     private Date mModified;
 
-    @ColumnInfo(name = "parentId")
-    private long parentId;
-
     /**
      * Default constructor for task. DateCreated and DateModified are created by default.
      * @param name String name of task
@@ -52,7 +52,7 @@ public class Task {
         this.notes = "";
         this.mCreated = new Date();
         this.mModified = new Date();
-        this.parentId = 0;
+        this.parentId = 1;
     }
 
     public long getId() {

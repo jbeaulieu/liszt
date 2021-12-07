@@ -14,14 +14,20 @@ import java.util.concurrent.Future;
 public class DataRepository {
 
     private final TaskDao mTaskDao;
+    private final ListDao mListDao;
 
     DataRepository(Application application) {
         TaskRoomDatabase db = TaskRoomDatabase.getDatabase(application);
         mTaskDao = db.taskDao();
+        mListDao = db.listDao();
     }
 
     LiveData<List<Task>> getListTasks(int sortKey) {
         return mTaskDao.getAllTasks(sortKey);
+    }
+
+    LiveData<List<Task>> getTasksForList(long id) {
+        return mTaskDao.getTasksForList(id);
     }
 
     void insert(Task task) {
@@ -49,5 +55,28 @@ public class DataRepository {
 
     void deleteTaskById(long id) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.deleteTaskById(id));
+    }
+
+    void createList(TaskList list) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.insert(list));
+    }
+
+    void updateList(TaskList taskList) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.updateList(taskList));
+    }
+
+    void deleteListById(long id) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.deleteListById(id));
+    }
+
+    TaskList getListById(long id) {
+        TaskList retList = null;
+        Future<TaskList> thisList = TaskRoomDatabase.databaseWriteExecutor.submit(() -> mListDao.getListById(id));
+        try {
+            retList = thisList.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return retList;
     }
 }

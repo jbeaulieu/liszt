@@ -63,4 +63,20 @@ public class ViewModel extends AndroidViewModel {
     public void deleteTaskById(long id) {
         dataRepository.deleteTaskById(id);
     }
+
+    public void createList(TaskList list) {
+        dataRepository.createList(list);
+    }
+
+    public void updateList(TaskList list) {
+        dataRepository.updateList(list);
+    }
+
+    public void deleteListById(long id) {
+        dataRepository.deleteListById(id);
+    }
+
+    public TaskList getListbyId(long id) {
+        return dataRepository.getListById(id);
+    }
 }
