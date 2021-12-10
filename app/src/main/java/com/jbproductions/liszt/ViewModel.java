@@ -43,17 +43,21 @@ public class ViewModel extends AndroidViewModel {
         return taskList;
     }
 
+    LiveData<List<Task>> getTasksForList(long id, int sortKey) {
+        return dataRepository.getTasksForList(id, sortKey);
+    }
+
     // Create wrapper methods so that the implementation is segmented from the UI
-    public void insert(Task task) {
-        dataRepository.insert(task);
+    public void createTask(Task task) {
+        dataRepository.createTask(task);
     }
 
-    public void update(Task task) {
-        dataRepository.update(task);
+    public void updateTask(Task task) {
+        dataRepository.updateTask(task);
     }
 
-    public void delete(Task task) {
-        dataRepository.delete(task);
+    public void deleteTask(Task task) {
+        dataRepository.deleteTask(task);
     }
 
     public Task getTaskById(long id) {
@@ -76,7 +80,7 @@ public class ViewModel extends AndroidViewModel {
         dataRepository.deleteListById(id);
     }
 
-    public TaskList getListbyId(long id) {
+    public TaskList getListById(long id) {
         return dataRepository.getListById(id);
     }
 }

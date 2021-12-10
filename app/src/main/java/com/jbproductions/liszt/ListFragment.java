@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.selection.ItemDetailsLookup;
@@ -27,6 +28,7 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.util.List;
 
 /**
  * Host fragment for viewing a list. This fragment provides the main view for the application.
@@ -63,6 +65,9 @@ public class ListFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        TaskList currentList = mViewModel.getListById(1);
+
         switch (item.getItemId()) {
             case R.id.action_delete: {
 
@@ -89,16 +94,22 @@ public class ListFragment extends Fragment {
             }
             case R.id.sort_alpha: {
 
+                currentList.setSortKey(TaskList.SORT_ALPHA);
+                mViewModel.updateList(currentList);
                 mViewModel.setSortKey(TaskList.SORT_ALPHA);
                 return true;
             }
             case R.id.sort_due: {
 
+                currentList.setSortKey(TaskList.SORT_DATE_DUE);
+                mViewModel.updateList(currentList);
                 mViewModel.setSortKey(TaskList.SORT_DATE_DUE);
                 return true;
             }
             case R.id.sort_default: {
 
+                currentList.setSortKey(TaskList.SORT_DATE_CREATED);
+                mViewModel.updateList(currentList);
                 mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
                 return true;
             }
@@ -121,7 +132,24 @@ public class ListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
-        mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
+
+        TaskList inbox = mViewModel.getListById(1);
+        mViewModel.setSortKey(inbox.getSortKey());
+
+        Log.d("INBOX", inbox.getName());
+        Log.d("INBOX", Long.toString(inbox.getId()));
+
+        //mViewModel.getTasksForList(1);
+        mViewModel.getAllTasks().observe(getViewLifecycleOwner(), tasks -> {
+           Log.d("SIZE", String.valueOf(tasks.size()));
+        });
+
+        mViewModel.getTasksForList(inbox.getId(), TaskList.SORT_DATE_CREATED).observe(getViewLifecycleOwner(), tasks -> {
+            for (int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+                Log.d("LOOP", task.getName());
+            }
+        });
 
         newTaskText = (EditText) view.findViewById(R.id.newTaskText);
 
@@ -129,7 +157,7 @@ public class ListFragment extends Fragment {
             boolean handled = false;
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 Task thisTask = new Task(newTaskText.getText().toString(), false);
-                mViewModel.insert(thisTask);
+                mViewModel.createTask(thisTask);
                 newTaskText.getText().clear();
                 newTaskText.requestFocus();
                 handled = true;
@@ -146,7 +174,7 @@ public class ListFragment extends Fragment {
         });
 
         mTaskClickInterface = task -> {
-            mViewModel.update(task);
+            mViewModel.updateTask(task);
             Log.d("HERE", "HERE");
         };
 

@@ -1,6 +1,7 @@
 package com.jbproductions.liszt;
 
 import android.app.Application;
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -26,19 +27,19 @@ public class DataRepository {
         return mTaskDao.getAllTasks(sortKey);
     }
 
-    LiveData<List<Task>> getTasksForList(long id) {
-        return mTaskDao.getTasksForList(id);
+    LiveData<List<Task>> getTasksForList(long id, int sortKey) {
+        return mTaskDao.getTasksForListSorted(id, sortKey);
     }
 
-    void insert(Task task) {
+    void createTask(Task task) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.insert(task));
     }
 
-    void update(Task task) {
+    void updateTask(Task task) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.updateTask(task));
     }
 
-    void delete(Task task) {
+    void deleteTask(Task task) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.deleteTask(task));
     }
 

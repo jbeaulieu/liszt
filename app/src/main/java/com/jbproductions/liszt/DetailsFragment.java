@@ -152,7 +152,7 @@ public class DetailsFragment extends Fragment {
             newDetailsTask.setComplete(taskStatusCheckBox.isChecked());
             newDetailsTask.setNotes(taskNotesEditText.getText().toString());
             newDetailsTask.setModified(new Date());
-            viewModel.update(newDetailsTask);
+            viewModel.updateTask(newDetailsTask);
             NavHostFragment.findNavController(this).popBackStack();
         });
 
