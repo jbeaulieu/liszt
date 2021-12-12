@@ -35,15 +35,15 @@ public interface TaskDao {
 
     @Query("SELECT * FROM tasks ORDER BY complete, "
             + "CASE WHEN :sort LIKE 0 THEN name "
-            + "WHEN :sort LIKE 1 THEN date_due "
+            + "WHEN :sort LIKE 1 THEN COALESCE(date_due, '2100-12-31') "
             + "WHEN :sort LIKE 2 THEN id "
-            + "ELSE id END")
+            + "ELSE id COLLATE NOCASE END")
     LiveData<List<Task>> getAllTasks(int sort);
 
     @Query("SELECT * FROM tasks WHERE parent_id = :id ORDER BY complete, "
             + "CASE WHEN :sortKey LIKE 0 THEN name "
-            + "WHEN :sortKey LIKE 1 THEN date_due "
+            + "WHEN :sortKey LIKE 1 THEN COALESCE(date_due, '2100-12-31') "
             + "WHEN :sortKey LIKE 2 THEN id "
-            + "ELSE id END")
+            + "ELSE id COLLATE NOCASE END")
     LiveData<List<Task>> getTasksForListSorted(long id, int sortKey);
 }
