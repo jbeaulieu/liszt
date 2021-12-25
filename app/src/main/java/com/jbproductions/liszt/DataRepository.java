@@ -1,7 +1,6 @@
 package com.jbproductions.liszt;
 
 import android.app.Application;
-import android.util.Log;
 import androidx.lifecycle.LiveData;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -23,12 +22,8 @@ public class DataRepository {
         mListDao = db.listDao();
     }
 
-    LiveData<List<Task>> getListTasks(int sortKey) {
-        return mTaskDao.getAllTasks(sortKey);
-    }
-
     LiveData<List<Task>> getTasksForList(long id, int sortKey) {
-        return mTaskDao.getTasksForListSorted(id, sortKey);
+        return mTaskDao.getTasksForList(id, sortKey);
     }
 
     void createTask(Task task) {
@@ -37,10 +32,6 @@ public class DataRepository {
 
     void updateTask(Task task) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.updateTask(task));
-    }
-
-    void deleteTask(Task task) {
-        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.deleteTask(task));
     }
 
     Task getTaskById(long id) {
@@ -58,16 +49,8 @@ public class DataRepository {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.deleteTaskById(id));
     }
 
-    void createList(TaskList list) {
-        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.insert(list));
-    }
-
     void updateList(TaskList taskList) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.updateList(taskList));
-    }
-
-    void deleteListById(long id) {
-        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.deleteListById(id));
     }
 
     TaskList getListById(long id) {

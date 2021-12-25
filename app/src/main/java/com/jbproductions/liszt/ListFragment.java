@@ -66,6 +66,7 @@ public class ListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
+        //
         TaskList currentList = mViewModel.getListById(1);
 
         switch (item.getItemId()) {
@@ -133,23 +134,13 @@ public class ListFragment extends Fragment {
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
 
+        // Requests the view model to get the proper list from the database
+        // Currently hardcoded to pull the auto-generated list "Inbox", which always has id 1
+        // TODO: On app exit, cache the last-viewed TaskList, and open it here on app start
         TaskList inbox = mViewModel.getListById(1);
+
+        // Pull the list's sort key from the database and set it in the view model
         mViewModel.setSortKey(inbox.getSortKey());
-
-        Log.d("INBOX", inbox.getName());
-        Log.d("INBOX", Long.toString(inbox.getId()));
-
-        //mViewModel.getTasksForList(1);
-        mViewModel.getAllTasks().observe(getViewLifecycleOwner(), tasks -> {
-           Log.d("SIZE", String.valueOf(tasks.size()));
-        });
-
-        mViewModel.getTasksForList(inbox.getId(), TaskList.SORT_DATE_CREATED).observe(getViewLifecycleOwner(), tasks -> {
-            for (int i = 0; i < tasks.size(); i++) {
-                Task task = tasks.get(i);
-                Log.d("LOOP", task.getName());
-            }
-        });
 
         newTaskText = (EditText) view.findViewById(R.id.newTaskText);
 
@@ -248,10 +239,6 @@ public class ListFragment extends Fragment {
                 requireActivity().invalidateOptionsMenu();
             }
         });
-    }
-
-    interface TextEditInterface {
-        void onTextEntered(String text, long id);
     }
 
     private static class TaskKeyProvider extends ItemKeyProvider<Long> {

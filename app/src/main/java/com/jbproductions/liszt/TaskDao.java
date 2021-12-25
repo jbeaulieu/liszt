@@ -21,29 +21,16 @@ public interface TaskDao {
     @Update
     void updateTask(Task task);
 
-    @Delete
-    void deleteTask(Task task);
-
     @Query("SELECT * FROM tasks WHERE id = :id")
     Task getTaskById(long id);
 
-    @Query("SELECT * FROM tasks WHERE parent_id = :id")
-    LiveData<List<Task>> getTasksForList(long id);
-
     @Query("DELETE FROM tasks WHERE id = :id")
     void deleteTaskById(long id);
-
-    @Query("SELECT * FROM tasks ORDER BY complete, "
-            + "CASE WHEN :sort LIKE 0 THEN name "
-            + "WHEN :sort LIKE 1 THEN COALESCE(date_due, '2100-12-31') "
-            + "WHEN :sort LIKE 2 THEN id "
-            + "ELSE id COLLATE NOCASE END")
-    LiveData<List<Task>> getAllTasks(int sort);
 
     @Query("SELECT * FROM tasks WHERE parent_id = :id ORDER BY complete, "
             + "CASE WHEN :sortKey LIKE 0 THEN name "
             + "WHEN :sortKey LIKE 1 THEN COALESCE(date_due, '2100-12-31') "
             + "WHEN :sortKey LIKE 2 THEN id "
             + "ELSE id COLLATE NOCASE END")
-    LiveData<List<Task>> getTasksForListSorted(long id, int sortKey);
+    LiveData<List<Task>> getTasksForList(long id, int sortKey);
 }

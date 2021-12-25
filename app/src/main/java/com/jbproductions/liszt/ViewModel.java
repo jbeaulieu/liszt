@@ -31,7 +31,7 @@ public class ViewModel extends AndroidViewModel {
         dataRepository = new DataRepository(application);
         taskList = Transformations.switchMap(
                 savedStateHandle.getLiveData(SORT_KEY, null),
-                (Function<Integer, LiveData<List<Task>>>) dataRepository::getListTasks
+                (Function<Integer, LiveData<List<Task>>>) sortKey -> dataRepository.getTasksForList(1, sortKey)
         );
     }
 
@@ -43,10 +43,6 @@ public class ViewModel extends AndroidViewModel {
         return taskList;
     }
 
-    LiveData<List<Task>> getTasksForList(long id, int sortKey) {
-        return dataRepository.getTasksForList(id, sortKey);
-    }
-
     // Create wrapper methods so that the implementation is segmented from the UI
     public void createTask(Task task) {
         dataRepository.createTask(task);
@@ -54,10 +50,6 @@ public class ViewModel extends AndroidViewModel {
 
     public void updateTask(Task task) {
         dataRepository.updateTask(task);
-    }
-
-    public void deleteTask(Task task) {
-        dataRepository.deleteTask(task);
     }
 
     public Task getTaskById(long id) {
@@ -68,16 +60,8 @@ public class ViewModel extends AndroidViewModel {
         dataRepository.deleteTaskById(id);
     }
 
-    public void createList(TaskList list) {
-        dataRepository.createList(list);
-    }
-
     public void updateList(TaskList list) {
         dataRepository.updateList(list);
-    }
-
-    public void deleteListById(long id) {
-        dataRepository.deleteListById(id);
     }
 
     public TaskList getListById(long id) {

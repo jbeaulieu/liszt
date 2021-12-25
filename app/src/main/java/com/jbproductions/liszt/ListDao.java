@@ -21,15 +21,7 @@ public interface ListDao {
     @Update
     void updateList(TaskList list);
 
-    @Delete
-    void deleteList(TaskList list);
-
     @Query("SELECT * FROM lists WHERE id = :id")
     TaskList getListById(long id);
 
-    @Query("DELETE FROM lists WHERE id = :id")
-    void deleteListById(long id);
-
-    @Query("SELECT * FROM lists ORDER BY name")
-    LiveData<List<TaskList>> getAllLists();
 }
