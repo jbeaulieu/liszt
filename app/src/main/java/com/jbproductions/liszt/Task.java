@@ -17,6 +17,9 @@ public class Task {
     @ColumnInfo(name = "id")
     private long id;
 
+    @ColumnInfo(name = "parent_id")
+    private long parentId;
+
     @NonNull
     @ColumnInfo(name = "name")
     private String mName;
@@ -49,6 +52,7 @@ public class Task {
         this.notes = "";
         this.mCreated = new Date();
         this.mModified = new Date();
+        this.parentId = 1;
     }
 
     public long getId() {
@@ -105,6 +109,14 @@ public class Task {
 
     public void setModified(Date modified) {
         this.mModified = modified;
+    }
+
+    public long getParentId() {
+        return this.parentId;
+    }
+
+    public void setParentId(long id) {
+        this.parentId = id;
     }
 
     /**

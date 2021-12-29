@@ -1,7 +1,6 @@
 package com.jbproductions.liszt;
 
 import android.app.Application;
-import android.util.Log;
 import androidx.lifecycle.LiveData;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -15,46 +14,24 @@ import java.util.concurrent.Future;
 public class DataRepository {
 
     private final TaskDao mTaskDao;
-    private final LiveData<List<Task>> mListTasks;
-    private final LiveData<List<Task>> mOpenTasks;
-    private final LiveData<List<Task>> mCompleteTasks;
+    private final ListDao mListDao;
 
     DataRepository(Application application) {
         TaskRoomDatabase db = TaskRoomDatabase.getDatabase(application);
         mTaskDao = db.taskDao();
-        mListTasks = mTaskDao.getAllTasks();
-        mOpenTasks = mTaskDao.getOpenTasks();
-        mCompleteTasks = mTaskDao.getCompleteTasks();
+        mListDao = db.listDao();
     }
 
-    LiveData<List<Task>> getListTasks() {
-        return mListTasks;
+    LiveData<List<Task>> getTasksForList(long id, int sortKey) {
+        return mTaskDao.getTasksForList(id, sortKey);
     }
 
-    LiveData<List<Task>> getOpenTasks() {
-        return mOpenTasks;
+    void createTask(Task task) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.insert(task));
     }
 
-    LiveData<List<Task>> getCompleteTasks() {
-        return mCompleteTasks;
-    }
-
-    void insert(Task task) {
-        TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
-            mTaskDao.insert(task);
-        });
-    }
-
-    void update(Task task) {
-        TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
-            mTaskDao.updateTask(task);
-        });
-    }
-
-    void delete(Task task) {
-        TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
-            mTaskDao.deleteTask(task);
-        });
+    void updateTask(Task task) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.updateTask(task));
     }
 
     Task getTaskById(long id) {
@@ -65,13 +42,25 @@ public class DataRepository {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        Log.d("taskDaoTag", retTask.getName());
         return retTask;
     }
 
     void deleteTaskById(long id) {
-        TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
-            mTaskDao.deleteTaskById(id);
-        });
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.deleteTaskById(id));
+    }
+
+    void updateList(TaskList taskList) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.updateList(taskList));
+    }
+
+    TaskList getListById(long id) {
+        TaskList retList = null;
+        Future<TaskList> thisList = TaskRoomDatabase.databaseWriteExecutor.submit(() -> mListDao.getListById(id));
+        try {
+            retList = thisList.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return retList;
     }
 }
