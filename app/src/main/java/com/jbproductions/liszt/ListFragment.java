@@ -42,6 +42,8 @@ public class ListFragment extends Fragment {
     private boolean singleItemSelected;
     private boolean multipleItemsSelected;
 
+    private TaskList inbox;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,57 +68,47 @@ public class ListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        //
-        TaskList currentList = mViewModel.getListById(1);
+        if (item.getItemId() == R.id.action_delete) {
+            Selection<Long> selectedItems = mSelectionTracker.getSelection();
+            for (Long itemId : selectedItems) {
+                mViewModel.deleteTaskById(itemId);
+            }
+            mSelectionTracker.clearSelection();
+            return true;
 
-        switch (item.getItemId()) {
-            case R.id.action_delete: {
+        } else if (item.getItemId() == R.id.action_edit) {
+            Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
-                Selection<Long> selectedItems = mSelectionTracker.getSelection();
-                for (Long itemId : selectedItems) {
-                    mViewModel.deleteTaskById(itemId);
+            if (selectedItems.size() == 1) {
+                for (Long selectedItem : selectedItems) {
+                    mViewModel.selectedTask = mViewModel.getTaskById(selectedItem);
                 }
-                mSelectionTracker.clearSelection();
-                return true;
             }
-            case R.id.action_edit: {
+            mSelectionTracker.clearSelection();
+            NavHostFragment.findNavController(ListFragment.this)
+                    .navigate(R.id.action_ListFragment_to_DetailsFragment);
+            return true;
 
-                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+        } else if (item.getItemId() == R.id.sort_alpha) {
+            inbox.setSortKey(TaskList.SORT_ALPHA);
+            mViewModel.updateList(inbox);
+            mViewModel.setSortKey(TaskList.SORT_ALPHA);
+            return true;
 
-                if (selectedItems.size() == 1) {
-                    for (Long selectedItem : selectedItems) {
-                        mViewModel.selectedTask = mViewModel.getTaskById(selectedItem);
-                    }
-                }
-                mSelectionTracker.clearSelection();
-                NavHostFragment.findNavController(ListFragment.this)
-                        .navigate(R.id.action_ListFragment_to_DetailsFragment);
-                return true;
-            }
-            case R.id.sort_alpha: {
+        } else if (item.getItemId() == R.id.sort_due) {
+            inbox.setSortKey(TaskList.SORT_DATE_DUE);
+            mViewModel.updateList(inbox);
+            mViewModel.setSortKey(TaskList.SORT_DATE_DUE);
+            return true;
 
-                currentList.setSortKey(TaskList.SORT_ALPHA);
-                mViewModel.updateList(currentList);
-                mViewModel.setSortKey(TaskList.SORT_ALPHA);
-                return true;
-            }
-            case R.id.sort_due: {
+        } else if (item.getItemId() == R.id.sort_default) {
+            inbox.setSortKey(TaskList.SORT_DATE_CREATED);
+            mViewModel.updateList(inbox);
+            mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
+            return true;
 
-                currentList.setSortKey(TaskList.SORT_DATE_DUE);
-                mViewModel.updateList(currentList);
-                mViewModel.setSortKey(TaskList.SORT_DATE_DUE);
-                return true;
-            }
-            case R.id.sort_default: {
-
-                currentList.setSortKey(TaskList.SORT_DATE_CREATED);
-                mViewModel.updateList(currentList);
-                mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
-                return true;
-            }
-            default: {
-                return super.onOptionsItemSelected(item);
-            }
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -137,10 +129,10 @@ public class ListFragment extends Fragment {
         // Requests the view model to get the proper list from the database
         // Currently hardcoded to pull the auto-generated list "Inbox", which always has id 1
         // TODO: On app exit, cache the last-viewed TaskList, and open it here on app start
-        TaskList inbox = mViewModel.getListById(1);
+        inbox = mViewModel.getActiveList();
 
         // Pull the list's sort key from the database and set it in the view model
-        mViewModel.setSortKey(inbox.getSortKey());
+        //mViewModel.setSortKey(inbox.getSortKey());
 
         newTaskText = (EditText) view.findViewById(R.id.newTaskText);
 
@@ -166,7 +158,6 @@ public class ListFragment extends Fragment {
 
         mTaskClickInterface = task -> {
             mViewModel.updateTask(task);
-            Log.d("HERE", "HERE");
         };
 
         RecyclerView listRecyclerView = view.findViewById(R.id.list_recycler_view);

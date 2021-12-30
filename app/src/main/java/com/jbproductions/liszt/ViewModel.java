@@ -19,6 +19,7 @@ public class ViewModel extends AndroidViewModel {
     private final DataRepository dataRepository;
     private final SavedStateHandle savedStateHandle;
 
+    TaskList activeList;
     Task selectedTask;
 
     /**
@@ -29,6 +30,8 @@ public class ViewModel extends AndroidViewModel {
         super(application);
         savedStateHandle = handle;
         dataRepository = new DataRepository(application);
+        activeList = dataRepository.getListById(1);
+        savedStateHandle.set(SORT_KEY, activeList.getSortKey());
         taskList = Transformations.switchMap(
                 savedStateHandle.getLiveData(SORT_KEY, null),
                 (Function<Integer, LiveData<List<Task>>>) sortKey -> dataRepository.getTasksForList(1, sortKey)
@@ -66,5 +69,19 @@ public class ViewModel extends AndroidViewModel {
 
     public TaskList getListById(long id) {
         return dataRepository.getListById(id);
+    }
+
+    /**
+     *
+     * @param key
+     */
+    public void setSortKeyNew(int key) {
+        // set key in viewmodel, via savedstatehandle
+        savedStateHandle.set(SORT_KEY, key);
+        // push new sort key to database (need active list)
+    }
+
+    public TaskList getActiveList() {
+        return activeList;
     }
 }
