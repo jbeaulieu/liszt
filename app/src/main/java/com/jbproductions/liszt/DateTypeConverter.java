@@ -1,6 +1,5 @@
 package com.jbproductions.liszt;
 
-import android.util.Log;
 import androidx.room.TypeConverter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
