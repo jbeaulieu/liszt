@@ -38,8 +38,15 @@ public class ViewModel extends AndroidViewModel {
         );
     }
 
+    /**
+     * Sets the sort key of the active list. The chosen key is saved both in the ViewModel's savedStateHandle
+     * and to the active list's database entry.
+     * @param key int value representing the sort method to be used. See TaskList class for values
+     */
     public void setSortKey(int key) {
         savedStateHandle.set(SORT_KEY, key);
+        activeList.setSortKey(key);
+        updateList(activeList);
     }
 
     LiveData<List<Task>> getAllTasks() {
@@ -69,16 +76,6 @@ public class ViewModel extends AndroidViewModel {
 
     public TaskList getListById(long id) {
         return dataRepository.getListById(id);
-    }
-
-    /**
-     *
-     * @param key
-     */
-    public void setSortKeyNew(int key) {
-        // set key in viewmodel, via savedstatehandle
-        savedStateHandle.set(SORT_KEY, key);
-        // push new sort key to database (need active list)
     }
 
     public TaskList getActiveList() {

@@ -32,14 +32,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
  */
 public class ListFragment extends Fragment {
 
-    SelectionTracker<Long> mSelectionTracker;
-    TaskClickInterface mTaskClickInterface;
     private EditText newTaskText;
     private ViewModel mViewModel;
     private boolean singleItemSelected;
     private boolean multipleItemsSelected;
-
-    private TaskList inbox;
+    SelectionTracker<Long> mSelectionTracker;
+    TaskListAdapter.ItemCheckListener itemCheckListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,10 +60,15 @@ public class ListFragment extends Fragment {
         editItem.setVisible(singleItemSelected);
     }
 
+    /**
+     * Handles processing of Options Menu items. For ListFragment, this includes list sorting, as well as
+     * editing and deleting items when one or more tasks are selected via long press.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         if (item.getItemId() == R.id.action_delete) {
+
             Selection<Long> selectedItems = mSelectionTracker.getSelection();
             for (Long itemId : selectedItems) {
                 mViewModel.deleteTaskById(itemId);
@@ -74,33 +77,26 @@ public class ListFragment extends Fragment {
             return true;
 
         } else if (item.getItemId() == R.id.action_edit) {
-            Selection<Long> selectedItems = mSelectionTracker.getSelection();
 
-            if (selectedItems.size() == 1) {
-                for (Long selectedItem : selectedItems) {
-                    mViewModel.selectedTask = mViewModel.getTaskById(selectedItem);
-                }
-            }
+            long selectedTaskId = mSelectionTracker.getSelection().iterator().next();
+            mViewModel.selectedTask = mViewModel.getTaskById(selectedTaskId);
             mSelectionTracker.clearSelection();
             NavHostFragment.findNavController(ListFragment.this)
                     .navigate(R.id.action_ListFragment_to_DetailsFragment);
             return true;
 
         } else if (item.getItemId() == R.id.sort_alpha) {
-            inbox.setSortKey(TaskList.SORT_ALPHA);
-            mViewModel.updateList(inbox);
+
             mViewModel.setSortKey(TaskList.SORT_ALPHA);
             return true;
 
         } else if (item.getItemId() == R.id.sort_due) {
-            inbox.setSortKey(TaskList.SORT_DATE_DUE);
-            mViewModel.updateList(inbox);
+
             mViewModel.setSortKey(TaskList.SORT_DATE_DUE);
             return true;
 
         } else if (item.getItemId() == R.id.sort_default) {
-            inbox.setSortKey(TaskList.SORT_DATE_CREATED);
-            mViewModel.updateList(inbox);
+
             mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
             return true;
 
@@ -122,14 +118,6 @@ public class ListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
-
-        // Requests the view model to get the proper list from the database
-        // Currently hardcoded to pull the auto-generated list "Inbox", which always has id 1
-        // TODO: On app exit, cache the last-viewed TaskList, and open it here on app start
-        inbox = mViewModel.getActiveList();
-
-        // Pull the list's sort key from the database and set it in the view model
-        //mViewModel.setSortKey(inbox.getSortKey());
 
         newTaskText = (EditText) view.findViewById(R.id.newTaskText);
 
@@ -153,12 +141,10 @@ public class ListFragment extends Fragment {
             imm.showSoftInput(newTaskText, InputMethodManager.SHOW_IMPLICIT);
         });
 
-        mTaskClickInterface = task -> {
-            mViewModel.updateTask(task);
-        };
+        itemCheckListener = task -> mViewModel.updateTask(task);
 
         RecyclerView listRecyclerView = view.findViewById(R.id.list_recycler_view);
-        final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
+        final TaskListAdapter adapter = new TaskListAdapter(itemCheckListener, new TaskListAdapter.TaskDiff());
         listRecyclerView.setAdapter(adapter);
         listRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 

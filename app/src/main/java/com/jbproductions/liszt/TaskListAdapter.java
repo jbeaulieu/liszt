@@ -1,6 +1,5 @@
 package com.jbproductions.liszt;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,17 +17,24 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> {
 
-    private final TaskClickInterface mTaskClickInterface;
     //// Member Attributes
     private SelectionTracker<Long> mSelectionTracker;
+    private final ItemCheckListener itemCheckListener;
 
     //// Constructor Methods
 
-    protected TaskListAdapter(TaskClickInterface taskClickInterface,
+    protected TaskListAdapter(ItemCheckListener itemCheckListener,
                               @NonNull DiffUtil.ItemCallback<Task> diffCallback) {
         super(diffCallback);
-        this.mTaskClickInterface = taskClickInterface;
+        this.itemCheckListener = itemCheckListener;
         setHasStableIds(true);
+    }
+
+    /**
+     * Simple interface to pass a callback to the Adapter's parent Fragment when a list item is checked/unchecked.
+     */
+    interface ItemCheckListener {
+        void onTaskChecked(Task task);
     }
 
     public void setSelectionTracker(SelectionTracker<Long> selectionTracker) {
@@ -63,7 +69,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
 
         if (getItemViewType(position) == ViewTypes.TaskView) {
             boolean isSelected = mSelectionTracker.isSelected((long) task.getId());
-            ((TaskViewHolder) viewHolder).bind(task, isSelected, mTaskClickInterface);
+            ((TaskViewHolder) viewHolder).bind(task, isSelected, itemCheckListener);
         }
     }
 
@@ -119,7 +125,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
             checkBox = view.findViewById(R.id.task_checkbox);
         }
 
-        private void bind(Task task, boolean isSelected, TaskClickInterface clickInterface) {
+        private void bind(Task task, boolean isSelected, ItemCheckListener itemCheckListener) {
             taskCardTitle.setText(task.getName());
             checkBox.setChecked(task.getComplete());
             taskLayout.setActivated(isSelected);
@@ -132,17 +138,10 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
             }
 
             checkBox.setOnClickListener(view -> {
-                String taskName = taskCardTitle.getText().toString();
                 boolean status = checkBox.isChecked();
                 task.setComplete(status);
 
-                if (checkBox.isChecked()) {
-                    Log.d("myTag", "Task: " + taskName + " -> selected.");
-                } else {
-                    Log.d("myTag", "Task: " + taskName + " -> un-selected.");
-                }
-
-                clickInterface.onCheckCallback(task);
+                itemCheckListener.onTaskChecked(task);
             });
         }
     }
