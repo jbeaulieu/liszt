@@ -19,8 +19,8 @@ public class ViewModel extends AndroidViewModel {
     private final DataRepository dataRepository;
     private final SavedStateHandle savedStateHandle;
 
-    TaskList activeList;
-    Task selectedTask;
+    private final TaskList activeList;
+    private Task selectedTask;
 
     /**
      * Default constructor for application ViewModel.
@@ -47,6 +47,14 @@ public class ViewModel extends AndroidViewModel {
         savedStateHandle.set(SORT_KEY, key);
         activeList.setSortKey(key);
         updateList(activeList);
+    }
+
+    public void setSelectedTask(long id) {
+        selectedTask = getTaskById(id);
+    }
+
+    public Task getSelectedTask() {
+        return selectedTask;
     }
 
     LiveData<List<Task>> getAllTasks() {

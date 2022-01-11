@@ -27,6 +27,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Fragment to display expanded task details.
@@ -41,7 +42,8 @@ public class DetailsFragment extends Fragment {
     private TextInputEditText taskNotesEditText;
     private ViewModel viewModel;
 
-    private Task referenceTask;
+    private Task selectedTask;
+    private Date dueDate;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,9 +57,8 @@ public class DetailsFragment extends Fragment {
                     // Prompt the user before discarding changes
                     AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity())
                             .setTitle(R.string.discard_changes_confirmation)
-                            .setPositiveButton(R.string.yes, (dialogInterface, i) -> {
-                                NavHostFragment.findNavController(DetailsFragment.this).popBackStack();
-                            })
+                            .setPositiveButton(R.string.yes, (dialogInterface, i) ->
+                                    NavHostFragment.findNavController(DetailsFragment.this).popBackStack())
                             .setNegativeButton(R.string.no, (dialogInterface, i) -> {});
                     builder.show();
                 } else {
@@ -85,21 +86,19 @@ public class DetailsFragment extends Fragment {
         ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle(R.string.details_fragment_title);
         ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //Get a reference to the app's ViewModel, so that we can access data for the selected task
+        //Get a reference to the app's ViewModel, and then a clean reference to the task we are editing
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
-
-        // Get a clean reference to the task we are editing. This reference will be used to compare for unsaved changes.
-        referenceTask = viewModel.getTaskById(viewModel.selectedTask.getId());
+        selectedTask = viewModel.getSelectedTask();
 
         // Set the fragments fields based on the task's details
-        taskNameEditText.setText(viewModel.selectedTask.getName());
-        taskStatusCheckBox.setChecked(viewModel.selectedTask.getComplete());
-        if (!(viewModel.selectedTask.getDueDate() == null)) {
-            dueDateTextView.setText(getResources().getString(R.string.due_date_string,
-                    getReadableDate(viewModel.selectedTask.getDueDate())));
+        taskNameEditText.setText(selectedTask.getName());
+        taskStatusCheckBox.setChecked(selectedTask.getComplete());
+        dueDate = selectedTask.getDueDate();
+        if (dueDate != null) {
+            dueDateTextView.setText(getResources().getString(R.string.due_date_string, getReadableDate(dueDate)));
             removeDueDateButton.setVisibility(View.VISIBLE);
         }
-        taskNotesEditText.setText(viewModel.selectedTask.getNotes());
+        taskNotesEditText.setText(selectedTask.getNotes());
 
         // Set listeners on the name field to maintain focus and show/hide the cursor & keyboard appropriately
         taskNameEditText.setOnClickListener(v -> taskNameEditText.setCursorVisible(true));
@@ -122,7 +121,7 @@ public class DetailsFragment extends Fragment {
 
         // Set a listener on the "x" button next to the due date to remove the task's due date when pressed
         removeDueDateButton.setOnClickListener(v -> {
-            viewModel.selectedTask.setDueDate(null);
+            dueDate = null;
             dueDateTextView.setText(R.string.due_date_label_default);
             removeDueDateButton.setVisibility(View.GONE);
         });
@@ -144,15 +143,17 @@ public class DetailsFragment extends Fragment {
         // Set listener on the save button to push updates to the db and go back to the list
         FloatingActionButton saveButton = view.findViewById(R.id.fab);
         saveButton.setOnClickListener(v -> {
-            Task newDetailsTask = viewModel.selectedTask;
             String newName = taskNameEditText.getText().toString();
             if (!newName.equals("")) {
-                newDetailsTask.setName(newName);
+                selectedTask.setName(newName);
             }
-            newDetailsTask.setComplete(taskStatusCheckBox.isChecked());
-            newDetailsTask.setNotes(taskNotesEditText.getText().toString());
-            newDetailsTask.setModified(new Date());
-            viewModel.updateTask(newDetailsTask);
+            selectedTask.setComplete(taskStatusCheckBox.isChecked());
+            selectedTask.setDueDate(dueDate);
+            if (taskNotesEditText.getText() != null) {
+                selectedTask.setNotes(taskNotesEditText.getText().toString());
+            }
+            selectedTask.setModified(new Date());
+            viewModel.updateTask(selectedTask);
             NavHostFragment.findNavController(this).popBackStack();
         });
 
@@ -161,8 +162,8 @@ public class DetailsFragment extends Fragment {
 
     void createDatePicker() {
         final Calendar calendar = Calendar.getInstance();
-        if (viewModel.selectedTask.getDueDate() != null) {
-            calendar.setTime(viewModel.selectedTask.getDueDate());
+        if (dueDate != null) {
+            calendar.setTime(dueDate);
         }
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH);
@@ -176,25 +177,23 @@ public class DetailsFragment extends Fragment {
 
             dueDateTextView.setText(dueDateText);
             removeDueDateButton.setVisibility(View.VISIBLE);
-            viewModel.selectedTask.setDueDate(calendar.getTime());
+            dueDate = calendar.getTime();
         }, currentYear, currentMonth, currentDay);
 
         datePickerDialog.show();
     }
 
     /**
-     * Helper function to check if there are unsaved changes to the task.
-     * Currently only used in the OnBackPressedCallback that is set up in DetailFragment's OnCreate(). This check has
-     * been isolated to a separate function to maintain readability.
-     * @return boolean value indicating the presence of unsaved changes.
+     * Helper function to check if there are unsaved changes to the task. Used in the OnBackPressedCallback that is
+     * set up in this Fragment's OnCreate().
      */
     boolean hasUnsavedChanges() {
 
         // If any of the name, status, or notes values differ between the VM and ref. task, there are unsaved changes
-        return !(taskNameEditText.getText().toString().equals(referenceTask.getName())
-                && taskStatusCheckBox.isChecked() == referenceTask.getComplete()
-                && viewModel.selectedTask.dueDateEquals(referenceTask.getDueDate())
-                && taskNotesEditText.getText().toString().equals(referenceTask.getNotes()));
+        return !(taskNameEditText.getText().toString().equals(selectedTask.getName())
+                && taskStatusCheckBox.isChecked() == selectedTask.getComplete()
+                && selectedTask.dueDateEquals(dueDate)
+                && Objects.requireNonNull(taskNotesEditText.getText()).toString().equals(selectedTask.getNotes()));
     }
 
 
@@ -202,8 +201,6 @@ public class DetailsFragment extends Fragment {
      * Convenience function to get a human-readable String for a given date. If the supplied date is within the next
      * week, the function will return a value such as "Today", "Tomorrow", or the weekday of the date. Otherwise, it
      * will return a String of "Month, Day", with the year appended if the date supplied is in a different year.
-     * @param date A Date object off of which to base the response String
-     * @return A String with a more readable version of the date
      */
     public static String getReadableDate(Date date) {
 
@@ -225,7 +222,7 @@ public class DetailsFragment extends Fragment {
                     break;
                 default:
                     String monthName = dueDate.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-                    dueDateText += monthName + " " + dueDate.get(Calendar.DATE);;
+                    dueDateText += monthName + " " + dueDate.get(Calendar.DATE);
                     if (dueDate.get(Calendar.YEAR) != Calendar.getInstance().get(Calendar.YEAR)) {
                         dueDateText += ", " + dueDate.get(Calendar.YEAR);
                     }

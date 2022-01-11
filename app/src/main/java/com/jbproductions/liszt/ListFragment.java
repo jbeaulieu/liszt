@@ -79,7 +79,7 @@ public class ListFragment extends Fragment {
         } else if (item.getItemId() == R.id.action_edit) {
 
             long selectedTaskId = mSelectionTracker.getSelection().iterator().next();
-            mViewModel.selectedTask = mViewModel.getTaskById(selectedTaskId);
+            mViewModel.setSelectedTask(selectedTaskId);
             mSelectionTracker.clearSelection();
             NavHostFragment.findNavController(ListFragment.this)
                     .navigate(R.id.action_ListFragment_to_DetailsFragment);
@@ -119,7 +119,7 @@ public class ListFragment extends Fragment {
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
 
-        newTaskText = (EditText) view.findViewById(R.id.newTaskText);
+        newTaskText = view.findViewById(R.id.newTaskText);
 
         newTaskText.setOnEditorActionListener((v, actionId, event) -> {
             boolean handled = false;
