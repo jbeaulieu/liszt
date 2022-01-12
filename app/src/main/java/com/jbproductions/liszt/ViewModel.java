@@ -19,7 +19,8 @@ public class ViewModel extends AndroidViewModel {
     private final DataRepository dataRepository;
     private final SavedStateHandle savedStateHandle;
 
-    Task selectedTask;
+    private final TaskList activeList;
+    private Task selectedTask;
 
     /**
      * Default constructor for application ViewModel.
@@ -29,14 +30,31 @@ public class ViewModel extends AndroidViewModel {
         super(application);
         savedStateHandle = handle;
         dataRepository = new DataRepository(application);
+        activeList = dataRepository.getListById(1);
+        savedStateHandle.set(SORT_KEY, activeList.getSortKey());
         taskList = Transformations.switchMap(
                 savedStateHandle.getLiveData(SORT_KEY, null),
                 (Function<Integer, LiveData<List<Task>>>) sortKey -> dataRepository.getTasksForList(1, sortKey)
         );
     }
 
+    /**
+     * Sets the sort key of the active list. The chosen key is saved both in the ViewModel's savedStateHandle
+     * and to the active list's database entry.
+     * @param key int value representing the sort method to be used. See TaskList class for values
+     */
     public void setSortKey(int key) {
         savedStateHandle.set(SORT_KEY, key);
+        activeList.setSortKey(key);
+        updateList(activeList);
+    }
+
+    public void setSelectedTask(long id) {
+        selectedTask = getTaskById(id);
+    }
+
+    public Task getSelectedTask() {
+        return selectedTask;
     }
 
     LiveData<List<Task>> getAllTasks() {
@@ -66,5 +84,9 @@ public class ViewModel extends AndroidViewModel {
 
     public TaskList getListById(long id) {
         return dataRepository.getListById(id);
+    }
+
+    public TaskList getActiveList() {
+        return activeList;
     }
 }

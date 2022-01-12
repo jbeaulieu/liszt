@@ -2,7 +2,6 @@ package com.jbproductions.liszt;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.selection.ItemDetailsLookup;
@@ -28,19 +26,18 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.util.List;
 
 /**
  * Host fragment for viewing a list. This fragment provides the main view for the application.
  */
 public class ListFragment extends Fragment {
 
-    SelectionTracker<Long> mSelectionTracker;
-    TaskClickInterface mTaskClickInterface;
     private EditText newTaskText;
     private ViewModel mViewModel;
     private boolean singleItemSelected;
     private boolean multipleItemsSelected;
+    SelectionTracker<Long> mSelectionTracker;
+    TaskListAdapter.ItemCheckListener itemCheckListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,60 +60,48 @@ public class ListFragment extends Fragment {
         editItem.setVisible(singleItemSelected);
     }
 
+    /**
+     * Handles processing of Options Menu items. For ListFragment, this includes list sorting, as well as
+     * editing and deleting items when one or more tasks are selected via long press.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        //
-        TaskList currentList = mViewModel.getListById(1);
+        if (item.getItemId() == R.id.action_delete) {
 
-        switch (item.getItemId()) {
-            case R.id.action_delete: {
-
-                Selection<Long> selectedItems = mSelectionTracker.getSelection();
-                for (Long itemId : selectedItems) {
-                    mViewModel.deleteTaskById(itemId);
-                }
-                mSelectionTracker.clearSelection();
-                return true;
+            Selection<Long> selectedItems = mSelectionTracker.getSelection();
+            for (Long itemId : selectedItems) {
+                mViewModel.deleteTaskById(itemId);
             }
-            case R.id.action_edit: {
+            mSelectionTracker.clearSelection();
+            return true;
 
-                Selection<Long> selectedItems = mSelectionTracker.getSelection();
+        } else if (item.getItemId() == R.id.action_edit) {
 
-                if (selectedItems.size() == 1) {
-                    for (Long selectedItem : selectedItems) {
-                        mViewModel.selectedTask = mViewModel.getTaskById(selectedItem);
-                    }
-                }
-                mSelectionTracker.clearSelection();
-                NavHostFragment.findNavController(ListFragment.this)
-                        .navigate(R.id.action_ListFragment_to_DetailsFragment);
-                return true;
-            }
-            case R.id.sort_alpha: {
+            long selectedTaskId = mSelectionTracker.getSelection().iterator().next();
+            mViewModel.setSelectedTask(selectedTaskId);
+            mSelectionTracker.clearSelection();
+            NavHostFragment.findNavController(ListFragment.this)
+                    .navigate(R.id.action_ListFragment_to_DetailsFragment);
+            return true;
 
-                currentList.setSortKey(TaskList.SORT_ALPHA);
-                mViewModel.updateList(currentList);
-                mViewModel.setSortKey(TaskList.SORT_ALPHA);
-                return true;
-            }
-            case R.id.sort_due: {
+        } else if (item.getItemId() == R.id.sort_alpha) {
 
-                currentList.setSortKey(TaskList.SORT_DATE_DUE);
-                mViewModel.updateList(currentList);
-                mViewModel.setSortKey(TaskList.SORT_DATE_DUE);
-                return true;
-            }
-            case R.id.sort_default: {
+            mViewModel.setSortKey(TaskList.SORT_ALPHA);
+            return true;
 
-                currentList.setSortKey(TaskList.SORT_DATE_CREATED);
-                mViewModel.updateList(currentList);
-                mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
-                return true;
-            }
-            default: {
-                return super.onOptionsItemSelected(item);
-            }
+        } else if (item.getItemId() == R.id.sort_due) {
+
+            mViewModel.setSortKey(TaskList.SORT_DATE_DUE);
+            return true;
+
+        } else if (item.getItemId() == R.id.sort_default) {
+
+            mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
+            return true;
+
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -134,15 +119,7 @@ public class ListFragment extends Fragment {
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
 
-        // Requests the view model to get the proper list from the database
-        // Currently hardcoded to pull the auto-generated list "Inbox", which always has id 1
-        // TODO: On app exit, cache the last-viewed TaskList, and open it here on app start
-        TaskList inbox = mViewModel.getListById(1);
-
-        // Pull the list's sort key from the database and set it in the view model
-        mViewModel.setSortKey(inbox.getSortKey());
-
-        newTaskText = (EditText) view.findViewById(R.id.newTaskText);
+        newTaskText = view.findViewById(R.id.newTaskText);
 
         newTaskText.setOnEditorActionListener((v, actionId, event) -> {
             boolean handled = false;
@@ -164,13 +141,10 @@ public class ListFragment extends Fragment {
             imm.showSoftInput(newTaskText, InputMethodManager.SHOW_IMPLICIT);
         });
 
-        mTaskClickInterface = task -> {
-            mViewModel.updateTask(task);
-            Log.d("HERE", "HERE");
-        };
+        itemCheckListener = task -> mViewModel.updateTask(task);
 
         RecyclerView listRecyclerView = view.findViewById(R.id.list_recycler_view);
-        final TaskListAdapter adapter = new TaskListAdapter(mTaskClickInterface, new TaskListAdapter.TaskDiff());
+        final TaskListAdapter adapter = new TaskListAdapter(itemCheckListener, new TaskListAdapter.TaskDiff());
         listRecyclerView.setAdapter(adapter);
         listRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
