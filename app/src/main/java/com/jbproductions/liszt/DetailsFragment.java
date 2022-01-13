@@ -16,7 +16,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -81,10 +80,6 @@ public class DetailsFragment extends Fragment {
         taskNotesLayout = view.findViewById(R.id.task_notes_layout);
         taskNotesEditText = view.findViewById(R.id.task_notes_text);
         removeDueDateButton = view.findViewById(R.id.remove_due_date_button);
-
-        // Set the ActionBar title and show the up/back button
-        ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle(R.string.details_fragment_title);
-        ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Get a reference to the app's ViewModel, and then a clean reference to the task we are editing
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);

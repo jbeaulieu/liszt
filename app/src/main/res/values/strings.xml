@@ -2,13 +2,12 @@
     <string name="app_name">Liszt</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="list_fragment_label">List Fragment</string>
-    <string name="details_fragment_label">Details Fragment</string>
+    <string name="list_fragment_label">Liszt</string>
+    <string name="details_fragment_label">Edit</string>
 
     <string name="completed_tasks_header">COMPLETED TASKS</string>
 
     <!-- DetailsFragment strings -->
-    <string name="details_fragment_title">Edit</string>
     <string name="discard_changes_confirmation">Discard changes?</string>
     <!-- DetailsFragment layout strings -->
     <string name="name_label_hint">Name</string>
