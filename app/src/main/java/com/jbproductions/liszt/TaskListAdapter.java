@@ -134,7 +134,8 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
                 taskCardSubtitle.setVisibility(View.GONE);
             } else {
                 taskCardSubtitle.setVisibility(View.VISIBLE);
-                taskCardSubtitle.setText(DetailsFragment.getReadableDate(task.getDueDate()));
+                // TODO: Make getReadableDate a static util function
+                // taskCardSubtitle.setText(DetailsFragment.getReadableDate(task.getDueDate()));
             }
 
             checkBox.setOnClickListener(view -> {
