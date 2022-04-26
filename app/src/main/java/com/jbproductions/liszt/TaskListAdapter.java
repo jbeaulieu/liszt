@@ -1,5 +1,7 @@
 package com.jbproductions.liszt;
 
+import static com.jbproductions.liszt.util.DateHelperKt.getReadableDate;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -134,8 +136,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
                 taskCardSubtitle.setVisibility(View.GONE);
             } else {
                 taskCardSubtitle.setVisibility(View.VISIBLE);
-                // TODO: Make getReadableDate a static util function
-                // taskCardSubtitle.setText(DetailsFragment.getReadableDate(task.getDueDate()));
+                taskCardSubtitle.setText(getReadableDate(task.getDueDate()));
             }
 
             checkBox.setOnClickListener(view -> {
