@@ -2,6 +2,10 @@ package com.jbproductions.liszt;
 
 import android.app.Application;
 import androidx.lifecycle.LiveData;
+import com.jbproductions.liszt.dao.ListDao;
+import com.jbproductions.liszt.dao.TaskDao;
+import com.jbproductions.liszt.models.ListModel;
+import com.jbproductions.liszt.models.TaskModel;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -22,21 +26,21 @@ public class DataRepository {
         mListDao = db.listDao();
     }
 
-    LiveData<List<Task>> getTasksForList(long id, int sortKey) {
+    LiveData<List<TaskModel>> getTasksForList(long id, int sortKey) {
         return mTaskDao.getTasksForList(id, sortKey);
     }
 
-    void createTask(Task task) {
+    void createTask(TaskModel task) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.insert(task));
     }
 
-    void updateTask(Task task) {
+    void updateTask(TaskModel task) {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.updateTask(task));
     }
 
-    Task getTaskById(long id) {
-        Task retTask = null;
-        Future<Task> thisTask = TaskRoomDatabase.databaseWriteExecutor.submit(() -> mTaskDao.getTaskById(id));
+    TaskModel getTaskById(long id) {
+        TaskModel retTask = null;
+        Future<TaskModel> thisTask = TaskRoomDatabase.databaseWriteExecutor.submit(() -> mTaskDao.getTaskById(id));
         try {
             retTask = thisTask.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -49,13 +53,13 @@ public class DataRepository {
         TaskRoomDatabase.databaseWriteExecutor.execute(() -> mTaskDao.deleteTaskById(id));
     }
 
-    void updateList(TaskList taskList) {
-        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.updateList(taskList));
+    void updateList(ListModel list) {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> mListDao.updateList(list));
     }
 
-    TaskList getListById(long id) {
-        TaskList retList = null;
-        Future<TaskList> thisList = TaskRoomDatabase.databaseWriteExecutor.submit(() -> mListDao.getListById(id));
+    ListModel getListById(long id) {
+        ListModel retList = null;
+        Future<ListModel> thisList = TaskRoomDatabase.databaseWriteExecutor.submit(() -> mListDao.getListById(id));
         try {
             retList = thisList.get();
         } catch (InterruptedException | ExecutionException e) {

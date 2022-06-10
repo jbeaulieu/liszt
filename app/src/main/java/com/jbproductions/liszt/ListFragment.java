@@ -25,6 +25,8 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jbproductions.liszt.models.ListModel;
+import com.jbproductions.liszt.models.TaskModel;
 
 /**
  * Host fragment for viewing a list. This fragment provides the main view for the application.
@@ -86,17 +88,17 @@ public class ListFragment extends Fragment {
 
         } else if (item.getItemId() == R.id.sort_alpha) {
 
-            mViewModel.setSortKey(TaskList.SORT_ALPHA);
+            mViewModel.setSortKey(ListModel.SORT_ALPHA);
             return true;
 
         } else if (item.getItemId() == R.id.sort_due) {
 
-            mViewModel.setSortKey(TaskList.SORT_DATE_DUE);
+            mViewModel.setSortKey(ListModel.SORT_DATE_DUE);
             return true;
 
         } else if (item.getItemId() == R.id.sort_default) {
 
-            mViewModel.setSortKey(TaskList.SORT_DATE_CREATED);
+            mViewModel.setSortKey(ListModel.SORT_DATE_CREATED);
             return true;
 
         } else {
@@ -121,7 +123,7 @@ public class ListFragment extends Fragment {
         newTaskText.setOnEditorActionListener((v, actionId, event) -> {
             boolean handled = false;
             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                Task thisTask = new Task(newTaskText.getText().toString(), false);
+                TaskModel thisTask = new TaskModel(newTaskText.getText().toString());
                 mViewModel.createTask(thisTask);
                 newTaskText.getText().clear();
                 newTaskText.requestFocus();
@@ -147,11 +149,11 @@ public class ListFragment extends Fragment {
 
         mViewModel.getAllTasks().observe(getViewLifecycleOwner(), tasks -> {
             for (int i = 0; i < tasks.size(); i++) {
-                Task task = tasks.get(i);
+                TaskModel task = tasks.get(i);
                 if (task.getId() == -1) {
                     break;
                 } else if (task.getComplete()) {
-                    Task divider = new Task("", false);
+                    TaskModel divider = new TaskModel("");
                     divider.setId(-1);
                     tasks.add(i, divider);
                     break;

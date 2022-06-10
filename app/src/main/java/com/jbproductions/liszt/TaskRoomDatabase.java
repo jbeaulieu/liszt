@@ -7,13 +7,17 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import com.jbproductions.liszt.dao.ListDao;
+import com.jbproductions.liszt.dao.TaskDao;
+import com.jbproductions.liszt.models.ListModel;
+import com.jbproductions.liszt.models.TaskModel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * RoomDatabase class to work with TaskDao and perform asynchronous queries.
  */
-@Database(entities = {Task.class, TaskList.class}, version = 1, exportSchema = false)
+@Database(entities = {TaskModel.class, ListModel.class}, version = 1, exportSchema = false)
 @TypeConverters(DateTypeConverter.class)
 public abstract class TaskRoomDatabase extends RoomDatabase {
 
@@ -29,13 +33,13 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
                 TaskDao taskDao = INSTANCE.taskDao();
                 ListDao listDao = INSTANCE.listDao();
 
-                Task task1 = new Task("Apples", false);
-                Task task2 = new Task("Oranges", false);
+                ListModel inbox = new ListModel("inbox");
+                listDao.insert(inbox);
+
+                TaskModel task1 = new TaskModel("Apples");
+                TaskModel task2 = new TaskModel("Oranges");
                 taskDao.insert(task1);
                 taskDao.insert(task2);
-
-                TaskList inbox = new TaskList("inbox");
-                listDao.insert(inbox);
             });
         }
     };

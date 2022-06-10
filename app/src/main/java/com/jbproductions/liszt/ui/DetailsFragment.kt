@@ -23,7 +23,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.jbproductions.liszt.R
-import com.jbproductions.liszt.Task
+import com.jbproductions.liszt.models.TaskModel
 import com.jbproductions.liszt.ViewModel
 import com.jbproductions.liszt.util.getReadableDate
 import java.util.*
@@ -41,7 +41,7 @@ class DetailsFragment : Fragment() {
     private lateinit var taskNotesEditText: TextInputEditText
     private lateinit var viewModel: ViewModel
 
-    private lateinit var selectedTask: Task
+    private lateinit var selectedTask: TaskModel
     private var dueDate: Date? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -13,11 +13,12 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import com.jbproductions.liszt.models.TaskModel;
 
 /**
  * ListAdapter implementation to dynamically display a single task list.
  */
-public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> {
+public class TaskListAdapter extends ListAdapter<TaskModel, RecyclerView.ViewHolder> {
 
     //// Member Attributes
     private SelectionTracker<Long> mSelectionTracker;
@@ -26,7 +27,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
     //// Constructor Methods
 
     protected TaskListAdapter(ItemCheckListener itemCheckListener,
-                              @NonNull DiffUtil.ItemCallback<Task> diffCallback) {
+                              @NonNull DiffUtil.ItemCallback<TaskModel> diffCallback) {
         super(diffCallback);
         this.itemCheckListener = itemCheckListener;
         setHasStableIds(true);
@@ -36,7 +37,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
      * Simple interface to pass a callback to the Adapter's parent Fragment when a list item is checked/unchecked.
      */
     interface ItemCheckListener {
-        void onTaskChecked(Task task);
+        void onTaskChecked(TaskModel task);
     }
 
     public void setSelectionTracker(SelectionTracker<Long> selectionTracker) {
@@ -67,7 +68,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
 
-        Task task = getItem(position);
+        TaskModel task = getItem(position);
 
         if (getItemViewType(position) == ViewTypes.TaskView) {
             boolean isSelected = mSelectionTracker.isSelected((long) task.getId());
@@ -90,17 +91,17 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
     }
 
     // Compares whether two Tasks visual representations are the same
-    static class TaskDiff extends DiffUtil.ItemCallback<Task> {
+    static class TaskDiff extends DiffUtil.ItemCallback<TaskModel> {
 
         @Override
-        public boolean areItemsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
+        public boolean areItemsTheSame(@NonNull TaskModel oldTask, @NonNull TaskModel newTask) {
             return oldTask.getId() == newTask.getId()
                     && oldTask.getName().equals(newTask.getName())
                     && oldTask.dueDateEquals(newTask.getDueDate());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Task oldTask, @NonNull Task newTask) {
+        public boolean areContentsTheSame(@NonNull TaskModel oldTask, @NonNull TaskModel newTask) {
             return oldTask.equals(newTask);
         }
     }
@@ -127,7 +128,7 @@ public class TaskListAdapter extends ListAdapter<Task, RecyclerView.ViewHolder> 
             checkBox = view.findViewById(R.id.task_checkbox);
         }
 
-        private void bind(Task task, boolean isSelected, ItemCheckListener itemCheckListener) {
+        private void bind(TaskModel task, boolean isSelected, ItemCheckListener itemCheckListener) {
             taskCardTitle.setText(task.getName());
             checkBox.setChecked(task.getComplete());
             taskLayout.setActivated(isSelected);

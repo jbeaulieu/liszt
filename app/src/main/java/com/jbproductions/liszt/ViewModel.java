@@ -6,6 +6,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
+import com.jbproductions.liszt.models.ListModel;
+import com.jbproductions.liszt.models.TaskModel;
 import java.util.List;
 
 /**
@@ -15,12 +17,12 @@ public class ViewModel extends AndroidViewModel {
 
     private static final String SORT_KEY = "SORT";
 
-    private final LiveData<List<Task>> taskList;
+    private final LiveData<List<TaskModel>> taskList;
     private final DataRepository dataRepository;
     private final SavedStateHandle savedStateHandle;
 
-    private final TaskList activeList;
-    private Task selectedTask;
+    private final ListModel activeList;
+    private TaskModel selectedTask;
 
     /**
      * Default constructor for application ViewModel.
@@ -34,7 +36,7 @@ public class ViewModel extends AndroidViewModel {
         savedStateHandle.set(SORT_KEY, activeList.getSortKey());
         taskList = Transformations.switchMap(
                 savedStateHandle.getLiveData(SORT_KEY, null),
-                (Function<Integer, LiveData<List<Task>>>) sortKey -> dataRepository.getTasksForList(1, sortKey)
+                (Function<Integer, LiveData<List<TaskModel>>>) sortKey -> dataRepository.getTasksForList(1, sortKey)
         );
     }
 
@@ -53,24 +55,24 @@ public class ViewModel extends AndroidViewModel {
         selectedTask = getTaskById(id);
     }
 
-    public Task getSelectedTask() {
+    public TaskModel getSelectedTask() {
         return selectedTask;
     }
 
-    LiveData<List<Task>> getAllTasks() {
+    LiveData<List<TaskModel>> getAllTasks() {
         return taskList;
     }
 
     // Create wrapper methods so that the implementation is segmented from the UI
-    public void createTask(Task task) {
+    public void createTask(TaskModel task) {
         dataRepository.createTask(task);
     }
 
-    public void updateTask(Task task) {
+    public void updateTask(TaskModel task) {
         dataRepository.updateTask(task);
     }
 
-    public Task getTaskById(long id) {
+    public TaskModel getTaskById(long id) {
         return dataRepository.getTaskById(id);
     }
 
@@ -78,15 +80,15 @@ public class ViewModel extends AndroidViewModel {
         dataRepository.deleteTaskById(id);
     }
 
-    public void updateList(TaskList list) {
+    public void updateList(ListModel list) {
         dataRepository.updateList(list);
     }
 
-    public TaskList getListById(long id) {
+    public ListModel getListById(long id) {
         return dataRepository.getListById(id);
     }
 
-    public TaskList getActiveList() {
+    public ListModel getActiveList() {
         return activeList;
     }
 }
