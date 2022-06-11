@@ -56,15 +56,8 @@ class TaskModel(
      * @return boolean indicating if the two dates are equal
      */
     fun dueDateEquals(date: Date?): Boolean {
+        date ?: return dueDate == null
         return dueDate?.equals(date) ?: false
-//        if (dueDate == null!! xor date == null) {
-//            // Check if this Task's due date XOR the parameter date are null (not both)
-//            return false
-//        } else if (dueDate != null && date != null) {
-//            // If neither date is null, check that the two are equal via Date's built-in equals function
-//            return dueDate == date
-//        }
-//        return true
     }
 
 }
