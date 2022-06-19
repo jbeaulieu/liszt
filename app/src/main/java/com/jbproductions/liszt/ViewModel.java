@@ -59,7 +59,7 @@ public class ViewModel extends AndroidViewModel {
         return selectedTask;
     }
 
-    LiveData<List<TaskModel>> getAllTasks() {
+    public LiveData<List<TaskModel>> getAllTasks() {
         return taskList;
     }
 
