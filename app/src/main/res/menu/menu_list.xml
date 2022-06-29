@@ -6,12 +6,12 @@
         android:id="@+id/action_delete"
         android:icon="@drawable/ic_baseline_delete_24"
         android:title="Delete"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_edit"
         android:icon="@drawable/ic_baseline_edit_24"
         android:title="Edit"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_sort"
@@ -21,19 +21,19 @@
             <item
                 android:id="@+id/sort_alpha"
                 android:icon="@drawable/ic_sort_by_alpha_24"
-                app:iconTint="@color/black"
                 android:iconTint="@color/air_superiority_blue"
-                android:title="Name" />
+                android:title="Name"
+                app:iconTint="@color/black" />
             <item
                 android:id="@+id/sort_due"
                 android:icon="@drawable/ic_calendar_24"
-                app:iconTint="@color/black"
-                android:title="Date Due" />
+                android:title="Date Due"
+                app:iconTint="@color/black" />
             <item
                 android:id="@+id/sort_default"
                 android:icon="@drawable/ic_create_24"
-                app:iconTint="@color/black"
-                android:title="Created" />
+                android:title="Created"
+                app:iconTint="@color/black" />
         </menu>
     </item>
 
