@@ -31,6 +31,7 @@ import java.util.*
  */
 class DetailsFragment : Fragment() {
 
+    // Using long convention so variable can be set to null later in onDestroyView.
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
@@ -43,28 +44,31 @@ class DetailsFragment : Fragment() {
 
         // Register a callback to intercept back button presses and check for unsaved changes to the Task
         val checkUnsavedChangesCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (hasUnsavedChanges(binding)) {
-                    // Prompt the user before discarding changes
-                    val builder = AlertDialog.Builder(requireActivity())
-                        .setTitle(R.string.discard_changes_confirmation)
-                        .setPositiveButton(R.string.yes) { _, _ ->
-                            NavHostFragment.findNavController(this@DetailsFragment).popBackStack()
-                        }
-                        .setNegativeButton(R.string.no) { _, _ -> }
-                    builder.show()
-                } else {
-                    // No changes have been made, go back
-                    NavHostFragment.findNavController(this@DetailsFragment).popBackStack()
+                override fun handleOnBackPressed() {
+                    if (hasUnsavedChanges(binding)) {
+                        // Prompt the user before discarding changes
+                        val builder: AlertDialog.Builder = AlertDialog.Builder(requireActivity())
+                            .setTitle(R.string.discard_changes_confirmation)
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                NavHostFragment.findNavController(this@DetailsFragment).popBackStack()
+                            }
+                            .setNegativeButton(R.string.no) { _, _ -> }
+                        builder.show()
+                    } else {
+                        // No changes have been made, go back
+                        NavHostFragment.findNavController(this@DetailsFragment).popBackStack()
+                    }
                 }
             }
-        }
 
         requireActivity().onBackPressedDispatcher.addCallback(this, checkUnsavedChangesCallback)
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
 
         // Inflate the layout for this fragment
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
@@ -98,7 +102,7 @@ class DetailsFragment : Fragment() {
             var handled = false
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 binding.taskNameText.isCursorVisible = false
-                val imm =
+                val imm: InputMethodManager =
                     requireContext().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(view?.windowToken, 0)
                 handled = true
@@ -145,7 +149,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun createDatePicker() {
-        val calendar = Calendar.getInstance()
+        val calendar: Calendar = Calendar.getInstance()
         if (dueDate != null) {
             calendar.time = dueDate!!
         }
@@ -174,10 +178,12 @@ class DetailsFragment : Fragment() {
      */
     private fun hasUnsavedChanges(binding: FragmentDetailsBinding): Boolean {
         // If any of the name, status, or notes values differ between the VM and ref. task, there are unsaved changes
-        return !(binding.taskNameText.text.toString() == selectedTask.name
-                && binding.taskCheckbox.isChecked == selectedTask.complete
+        return !(
+                Objects.requireNonNull(binding.taskNameText.text.toString()) == selectedTask.name
+                && Objects.requireNonNull(binding.taskCheckbox.isChecked) == selectedTask.complete
                 && selectedTask.dueDateEquals(dueDate)
-                && Objects.requireNonNull(binding.taskNotesText.text).toString() == selectedTask.notes)
+                && Objects.requireNonNull(binding.taskNotesText.text).toString() == selectedTask.notes
+                )
     }
 
     /**
