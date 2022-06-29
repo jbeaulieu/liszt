@@ -14,6 +14,7 @@ import androidx.recyclerview.selection.ItemKeyProvider
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate
 import androidx.recyclerview.selection.StorageStrategy
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jbproductions.liszt.R
@@ -97,7 +98,11 @@ class ListFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
         // Inflate the layout for this fragment
         _binding = FragmentListBinding.inflate(inflater, container, false)
@@ -124,22 +129,29 @@ class ListFragment : Fragment() {
             imm.showSoftInput(binding.newTaskText, InputMethodManager.SHOW_IMPLICIT)
         }
 
-        itemCheckListener = ItemCheckListener { task: TaskModel? -> mViewModel.updateTask(task) }
+        itemCheckListener = object : ItemCheckListener {
+            override fun onTaskChecked(task: TaskModel?) {
+                mViewModel.updateTask(task)
+            }
+        }
 
-        val adapter = TaskListAdapter(itemCheckListener, TaskDiff())
+        val adapter = TaskListAdapter(
+            itemCheckListener as ItemCheckListener,
+            TaskDiff() as DiffUtil.ItemCallback<TaskModel?>
+        )
         binding.listRecyclerView.adapter = adapter
         binding.listRecyclerView.layoutManager = LinearLayoutManager(activity)
 
         mViewModel.allTasks.observe(viewLifecycleOwner) { tasks ->
             // If there are completed tasks, add a divider view immediately before them in the list
             val index = tasks.indexOfFirst { it.complete }
-            if(index != -1) {
+            if (index != -1) {
                 val divider = TaskModel("")
                 divider.id = -1
                 tasks.add(index, divider)
             }
             // Submit the list to the recyclerView adapter
-            adapter.submitList(tasks)
+            adapter?.submitList(tasks)
         }
 
         val noDividerSelection: SelectionPredicate<Long> = object : SelectionPredicate<Long>() {
@@ -164,7 +176,7 @@ class ListFragment : Fragment() {
             StorageStrategy.createLongStorage()
         ).withSelectionPredicate(noDividerSelection).build()
 
-        adapter.setSelectionTracker(selectionTracker)
+        adapter?.setSelectionTracker(selectionTracker)
 
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long?>() {
             override fun onSelectionChanged() {
@@ -190,13 +202,16 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-    private class TaskKeyProvider(private val mRecyclerView: RecyclerView) : ItemKeyProvider<Long>(SCOPE_CACHED) {
+    private class TaskKeyProvider(private val mRecyclerView: RecyclerView) :
+        ItemKeyProvider<Long>(SCOPE_CACHED) {
 
         override fun getKey(position: Int): Long = mRecyclerView.adapter!!.getItemId(position)
-        override fun getPosition(key: Long): Int  = mRecyclerView.findViewHolderForItemId(key).layoutPosition
+        override fun getPosition(key: Long): Int =
+            mRecyclerView.findViewHolderForItemId(key).layoutPosition
     }
 
-    private class TaskDetailsLookup(private val mRecyclerView: RecyclerView) : ItemDetailsLookup<Long>() {
+    private class TaskDetailsLookup(private val mRecyclerView: RecyclerView) :
+        ItemDetailsLookup<Long>() {
         override fun getItemDetails(event: MotionEvent): ItemDetails<Long>? {
             val view = mRecyclerView.findChildViewUnder(event.x, event.y)
             if (view != null) {
