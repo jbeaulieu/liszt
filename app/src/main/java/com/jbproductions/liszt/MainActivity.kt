@@ -12,7 +12,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.jbproductions.liszt.databinding.ActivityMainBinding
-import com.jbproductions.liszt.models.ListModel
 
 class MainActivity : AppCompatActivity() {
 

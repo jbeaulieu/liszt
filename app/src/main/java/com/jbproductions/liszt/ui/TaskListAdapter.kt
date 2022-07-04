@@ -28,7 +28,7 @@ class TaskListAdapter internal constructor(
      * Simple interface to pass a callback to the Adapter's parent Fragment when a list item is checked/unchecked.
      */
     interface ItemCheckListener {
-        fun onTaskChecked(task: TaskModel?)
+        fun onTaskChecked(task: TaskModel)
     }
 
     fun setSelectionTracker(selectionTracker: SelectionTracker<Long>?) {
@@ -93,10 +93,10 @@ class TaskListAdapter internal constructor(
 
     internal class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         //// Member Attributes
-        private val taskLayout: LinearLayout
-        private val taskCardTitle: TextView
-        private val taskCardSubtitle: TextView
-        private val checkBox: CheckBox
+        private val taskLayout: LinearLayout = view.findViewById(R.id.task_layout)
+        private val taskCardTitle: TextView = view.findViewById(R.id.task_text)
+        private val taskCardSubtitle: TextView = view.findViewById(R.id.task_subtext)
+        private val checkBox: CheckBox = view.findViewById(R.id.task_checkbox)
         fun bind(task: TaskModel?, isSelected: Boolean, itemCheckListener: ItemCheckListener) {
             taskCardTitle.text = task!!.name
             checkBox.isChecked = task.complete
@@ -112,18 +112,6 @@ class TaskListAdapter internal constructor(
                 task.complete = status
                 itemCheckListener.onTaskChecked(task)
             }
-        }
-
-        //// Constructor Methods
-        init {
-            // Stores the view in a public final variable that can be used to access
-            // the context from any TaskFragmentViewHolder instance.
-
-            // Initialize member attributes for each view in the Task fragment.
-            taskLayout = view.findViewById(R.id.task_layout)
-            taskCardTitle = view.findViewById(R.id.task_text)
-            taskCardSubtitle = view.findViewById(R.id.task_subtext)
-            checkBox = view.findViewById(R.id.task_checkbox)
         }
     }
 

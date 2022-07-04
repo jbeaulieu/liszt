@@ -4,16 +4,16 @@ import androidx.room.*
 import com.jbproductions.liszt.models.ListModel
 
 /**
- * DAO to provide query functionality for TaskList objects.
+ * DAO to provide query functionality for ListModel objects.
  */
 @Dao
 interface ListDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(list: ListModel)
+    suspend fun insert(list: ListModel)
 
     @Update
-    fun updateList(list: ListModel)
+    suspend fun updateList(list: ListModel)
 
     @Query("SELECT * FROM lists WHERE id = :id")
-    fun getListById(id: Long): ListModel
+    suspend fun getListById(id: Long): ListModel?
 }

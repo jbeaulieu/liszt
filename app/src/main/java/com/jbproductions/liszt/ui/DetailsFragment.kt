@@ -17,13 +17,15 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.NavHostFragment
+import com.jbproductions.liszt.LisztApplication
 import com.jbproductions.liszt.R
-import com.jbproductions.liszt.ViewModel
 import com.jbproductions.liszt.databinding.FragmentDetailsBinding
 import com.jbproductions.liszt.models.TaskModel
 import com.jbproductions.liszt.util.getReadableDate
+import com.jbproductions.liszt.viewmodels.LisztViewModel
+import com.jbproductions.liszt.viewmodels.LisztViewModelFactory
 import java.util.*
 
 /**
@@ -35,9 +37,12 @@ class DetailsFragment : Fragment() {
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: ViewModel
     private lateinit var selectedTask: TaskModel
     private var dueDate: Date? = null
+
+    private val viewModel: LisztViewModel by activityViewModels {
+        LisztViewModelFactory(LisztApplication.repository!!)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,9 +78,7 @@ class DetailsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
 
-        //Get a reference to the app's ViewModel, and then a clean reference to the task we are editing
-        viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
-        selectedTask = viewModel.selectedTask
+        selectedTask = viewModel.selectedTask!!
 
         // Set the fragments fields based on the task's details
         binding.taskNameText.setText(selectedTask.name)

@@ -15,7 +15,7 @@ class ListModel(@field:ColumnInfo(name = "name") var name: String) {
     var id: Long = 0
 
     @ColumnInfo(name = "sort_key")
-    var sortKey = 0
+    var sortKey: Int = 0
 
     @ColumnInfo(name = "date_created", defaultValue = "CURRENT_TIMESTAMP")
     var created: Date = Date()

@@ -7,7 +7,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
@@ -17,13 +17,15 @@ import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.jbproductions.liszt.LisztApplication
 import com.jbproductions.liszt.R
-import com.jbproductions.liszt.ViewModel
-import com.jbproductions.liszt.ui.TaskListAdapter.ItemCheckListener
-import com.jbproductions.liszt.ui.TaskListAdapter.TaskDiff
 import com.jbproductions.liszt.databinding.FragmentListBinding
 import com.jbproductions.liszt.models.ListModel
 import com.jbproductions.liszt.models.TaskModel
+import com.jbproductions.liszt.ui.TaskListAdapter.ItemCheckListener
+import com.jbproductions.liszt.ui.TaskListAdapter.TaskDiff
+import com.jbproductions.liszt.viewmodels.LisztViewModel
+import com.jbproductions.liszt.viewmodels.LisztViewModelFactory
 
 /**
  * Host fragment for viewing a list. This fragment provides the main view for the application.
@@ -33,12 +35,15 @@ class ListFragment : Fragment() {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var mViewModel: ViewModel
     private lateinit var selectionTracker: SelectionTracker<Long>
     private var itemCheckListener: ItemCheckListener? = null
 
     private var singleItemSelected = false
     private var multipleItemsSelected = false
+
+    private val viewModel: LisztViewModel by activityViewModels {
+        LisztViewModelFactory(LisztApplication.repository!!)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,29 +72,29 @@ class ListFragment : Fragment() {
             R.id.action_delete -> {
                 val selectedItems = selectionTracker.selection
                 for (itemId in selectedItems) {
-                    mViewModel.deleteTaskById(itemId!!)
+                    viewModel.deleteTaskById(itemId)
                 }
                 selectionTracker.clearSelection()
                 true
             }
             R.id.action_edit -> {
                 val selectedTaskId = selectionTracker.selection.iterator().next()
-                mViewModel.setSelectedTask(selectedTaskId)
+                viewModel.setSelectedTask(selectedTaskId)
                 selectionTracker.clearSelection()
                 NavHostFragment.findNavController(this@ListFragment)
                     .navigate(R.id.action_ListFragment_to_DetailsFragment)
                 true
             }
             R.id.sort_alpha -> {
-                mViewModel.setSortKey(ListModel.SORT_ALPHA)
+                viewModel.setSortKey(ListModel.SORT_ALPHA)
                 true
             }
             R.id.sort_due -> {
-                mViewModel.setSortKey(ListModel.SORT_DATE_DUE)
+                viewModel.setSortKey(ListModel.SORT_DATE_DUE)
                 true
             }
             R.id.sort_default -> {
-                mViewModel.setSortKey(ListModel.SORT_DATE_CREATED)
+                viewModel.setSortKey(ListModel.SORT_DATE_CREATED)
                 true
             }
             else -> {
@@ -107,14 +112,12 @@ class ListFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentListBinding.inflate(inflater, container, false)
 
-        //Get a reference to the app's ViewModel, and then a clean reference to the task we are editing
-        mViewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
-
         binding.newTaskText.setOnEditorActionListener { _: TextView?, actionId: Int, _: KeyEvent? ->
             var handled = false
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 val thisTask = TaskModel(binding.newTaskText.text.toString())
-                mViewModel.createTask(thisTask)
+                viewModel.createTask(thisTask)
+                // mViewModel.createTask(thisTask)
                 binding.newTaskText.text.clear()
                 binding.newTaskText.requestFocus()
                 handled = true
@@ -130,8 +133,8 @@ class ListFragment : Fragment() {
         }
 
         itemCheckListener = object : ItemCheckListener {
-            override fun onTaskChecked(task: TaskModel?) {
-                mViewModel.updateTask(task)
+            override fun onTaskChecked(task: TaskModel) {
+                viewModel.updateTask(task)
             }
         }
 
@@ -142,16 +145,16 @@ class ListFragment : Fragment() {
         binding.listRecyclerView.adapter = adapter
         binding.listRecyclerView.layoutManager = LinearLayoutManager(activity)
 
-        mViewModel.allTasks.observe(viewLifecycleOwner) { tasks ->
-            // If there are completed tasks, add a divider view immediately before them in the list
-            val index = tasks.indexOfFirst { it.complete }
+        viewModel.tasks.observe(viewLifecycleOwner) { tasks ->
+            val list = tasks.toMutableList()
+            val index = list.indexOfFirst { it.complete }
             if (index != -1) {
                 val divider = TaskModel("")
                 divider.id = -1
-                tasks.add(index, divider)
+                list.add(index, divider)
             }
             // Submit the list to the recyclerView adapter
-            adapter?.submitList(tasks)
+            adapter.submitList(list as List<TaskModel>)
         }
 
         val noDividerSelection: SelectionPredicate<Long> = object : SelectionPredicate<Long>() {
@@ -176,7 +179,7 @@ class ListFragment : Fragment() {
             StorageStrategy.createLongStorage()
         ).withSelectionPredicate(noDividerSelection).build()
 
-        adapter?.setSelectionTracker(selectionTracker)
+        adapter.setSelectionTracker(selectionTracker)
 
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long?>() {
             override fun onSelectionChanged() {
