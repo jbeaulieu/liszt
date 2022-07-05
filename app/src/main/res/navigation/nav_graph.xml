@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/ListFragment"
-        android:name="com.jbproductions.liszt.ListFragment"
+        android:name="com.jbproductions.liszt.ui.ListFragment"
         android:label="@string/list_fragment_label"
         tools:layout="@layout/fragment_list">
 
@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/DetailsFragment"
-        android:name="com.jbproductions.liszt.DetailsFragment"
+        android:name="com.jbproductions.liszt.ui.DetailsFragment"
         android:label="@string/details_fragment_label"
         tools:layout="@layout/fragment_details">
 

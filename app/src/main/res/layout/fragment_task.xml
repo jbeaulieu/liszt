@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="6dp"
     android:layout_marginVertical="2dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="6dp">
 
     <LinearLayout
         android:id="@+id/task_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/selection_background"
         android:orientation="horizontal"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
         android:paddingStart="8dp"
         android:paddingLeft="8dp"
-        android:background="@drawable/selection_background">
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <CheckBox
             android:id="@+id/task_checkbox"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center"
-            android:layout_marginEnd="12dp"
             android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
             android:tint="?colorOnSurface" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="32dp"
             android:layout_gravity="center_vertical"
-            android:gravity="center_vertical"
-            android:layout_marginEnd="@dimen/baseline"
-            android:layout_marginLeft="@dimen/baseline_half"
-            android:layout_marginRight="@dimen/baseline"
             android:layout_marginStart="@dimen/baseline_half"
+            android:layout_marginLeft="@dimen/baseline_half"
+            android:layout_marginEnd="@dimen/baseline"
+            android:layout_marginRight="@dimen/baseline"
             android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:minHeight="32dp"
             android:orientation="vertical">
 
             <TextView
